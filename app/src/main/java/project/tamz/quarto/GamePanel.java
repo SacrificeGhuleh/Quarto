@@ -21,7 +21,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         getHolder().addCallback(this);
 
         this.thread = new GameThread(getHolder(), this);
-
+        QuartoGameLogic quartoGameLogic = new QuartoGameLogic();
         setFocusable(true);
 
     }
@@ -93,5 +93,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
+        canvas.drawColor(MyColorPalette.PrimaryLight);
+        new GameBoard().draw(canvas);
     }
 }
