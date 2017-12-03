@@ -83,6 +83,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        System.out.println("Clicked on x: " + event.getX() + " y: " + event.getY());
         return super.onTouchEvent(event);
     }
 
