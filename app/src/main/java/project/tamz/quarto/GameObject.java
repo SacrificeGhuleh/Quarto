@@ -1,6 +1,7 @@
 package project.tamz.quarto;
 
 import android.graphics.Canvas;
+import android.graphics.Point;
 
 /**
  * Created by Richard Zvonek on 03/12/2017.
@@ -12,6 +13,8 @@ public class GameObject implements GameEntity {
     private boolean square;
     private boolean hole;
     private byte code;
+    private int boardSphereSize = 0;
+    private Point position;
 
     public GameObject(byte code) {
         super();
@@ -21,6 +24,22 @@ public class GameObject implements GameEntity {
         this.square = (code & 2) == 0;
         this.hole = (code & 1) == 0;
         this.code = code;
+    }
+
+    public int getBoardSphereSize() {
+        return boardSphereSize;
+    }
+
+    public void setBoardSphereSize(int boardSphereSize) {
+        this.boardSphereSize = boardSphereSize;
+    }
+
+    public Point getPosition() {
+        return position;
+    }
+
+    public void setPosition(Point position) {
+        this.position = position;
     }
 
     /*public GameObject() {
@@ -84,6 +103,12 @@ public class GameObject implements GameEntity {
 
     @Override
     public void draw(Canvas canvas) {
+        if (position == null || boardSphereSize <= 0)
+            return;
+
+        //todo vykreslovani
+
+
 
     }
 
