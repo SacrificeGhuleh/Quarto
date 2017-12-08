@@ -48,11 +48,14 @@ public class GameBoard implements GameEntity {
     public void draw(Canvas canvas) {
         Size size = new Size(canvas.getWidth(), canvas.getHeight());
         int squareSize = min(size.getWidth(), size.getHeight());
-        Point center = new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
+        Point center = new Point(canvas.getWidth() / 2, canvas.getHeight() * 1 / 3);
 
         Paint gameBoardBackgroundPaint = new Paint();
         gameBoardBackgroundPaint.setColor(MyColorPalette.Primary);
         Rect gameBoardBackground = new Rect(center.x - squareSize / 2, center.y - squareSize / 2, center.x + squareSize / 2, center.y + squareSize / 2);
+        //Rect gameBoardBackground = new Rect(0, 0, squareSize, + squareSize);
+
+        //Point center = new Point(gameBoardBackground.centerX(), gameBoardBackground.centerY());
 
         canvas.drawRect(gameBoardBackground, gameBoardBackgroundPaint);
 

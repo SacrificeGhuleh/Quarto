@@ -11,10 +11,7 @@ public class GameObject implements GameEntity {
     private boolean black;
     private boolean square;
     private boolean hole;
-
-    public GameObject() {
-        super();
-    }
+    private byte code;
 
     public GameObject(byte code) {
         super();
@@ -23,16 +20,25 @@ public class GameObject implements GameEntity {
         this.black = (code & 4) == 0;
         this.square = (code & 2) == 0;
         this.hole = (code & 1) == 0;
+        this.code = code;
     }
 
-    public GameObject(boolean tall, boolean black, boolean square, boolean hole) {
+    /*public GameObject() {
+        super();
+    }*/
+
+    public byte getCode() {
+        return code;
+    }
+
+    /*public GameObject(boolean tall, boolean black, boolean square, boolean hole) {
         super();
 
         this.tall = tall;
         this.black = black;
         this.square = square;
         this.hole = hole;
-    }
+    }*/
 
     public boolean isTall() {
         return tall;
