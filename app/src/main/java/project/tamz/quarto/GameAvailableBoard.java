@@ -83,7 +83,7 @@ public class GameAvailableBoard implements GameEntity {
         }
         
         /*GameObject test = new GameObject((byte)0b1011);
-        test.setPosition(new Point((int)selectedPos.x, (int)selectedPos.y));
+        test.setPosition(new PointF((int)selectedPos.x, (int)selectedPos.y));
         test.setBoardSphereSize(cellWidth);
         test.draw(canvas);*/
         //canvas.drawCircle(selectedPos.x, selectedPos.y, cellWidth*0.9f/2.f, cellPaint);

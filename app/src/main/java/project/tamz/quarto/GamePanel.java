@@ -2,7 +2,6 @@ package project.tamz.quarto;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -106,7 +105,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         List<GameObject> availableObjects2 = availableObjects;
         
         float radius = gameBoard.getSmallCirclesRadius();
-        List<List<Point>> gameBoardPlaces = gameBoard.getSmallCircles();
+        List<List<PointF>> gameBoardPlaces = gameBoard.getSmallCircles();
         int i = 0;
         for (int y = 0; y < gameBoardPlaces.size(); y++) {
             for (int x = 0; x < gameBoardPlaces.get(y).size(); x++) {
@@ -126,7 +125,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         for (int y = 0; y < availablePlaces.size(); y++) {
             for (int x = 0; x < availablePlaces.get(y).size(); x++) {
                 availableObjects2.get(i).setPosition(
-                        new Point(
+                        new PointF(
                                 (int) availablePlaces.get(y).get(x).x,
                                 (int) availablePlaces.get(y).get(x).y
                         ));

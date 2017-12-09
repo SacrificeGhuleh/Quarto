@@ -2,7 +2,7 @@ package project.tamz.quarto;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.RectF;
 
 import static java.lang.Math.sqrt;
@@ -18,7 +18,7 @@ public class GameObject implements GameEntity {
     private boolean hole;
     private byte code;
     private float boardSphereSize = 0.f;
-    private Point position;
+    private PointF position;
     
     public GameObject(byte code) {
         super();
@@ -38,11 +38,11 @@ public class GameObject implements GameEntity {
         this.boardSphereSize = boardSphereSize;
     }
     
-    public Point getPosition() {
+    public PointF getPosition() {
         return position;
     }
     
-    public void setPosition(Point position) {
+    public void setPosition(PointF position) {
         this.position = position;
     }
 

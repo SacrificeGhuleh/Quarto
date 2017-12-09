@@ -2,8 +2,8 @@ package project.tamz.quarto;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Rect;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.util.Size;
 
 import java.util.ArrayList;
@@ -21,15 +21,15 @@ public class GameBoard implements GameEntity {
     private Size size;
     private float squareSize;
     private Paint gameBoardBackgroundPaint;
-    private Rect gameBoardBackground;
-    private Point center;
+    private RectF gameBoardBackground;
+    private PointF center;
     private Paint outline;
     private float mainCircleRadius;
     private float helperRectSize;
-    private Rect helperRect;
+    private RectF helperRect;
     
     private boolean initialized = false;
-    private List<List<Point>> smallCircles;
+    private List<List<PointF>> smallCircles;
     
     public GameBoard() {
         super();
@@ -39,7 +39,7 @@ public class GameBoard implements GameEntity {
         return smallCirclesRadius;
     }
     
-    public List<List<Point>> getSmallCircles() {
+    public List<List<PointF>> getSmallCircles() {
         return smallCircles;
     }
     
@@ -76,7 +76,7 @@ public class GameBoard implements GameEntity {
         
         canvas.drawRect(gameBoardBackground, gameBoardBackgroundPaint);
         canvas.drawCircle(center.x, center.y, mainCircleRadius, outline);
-        Point centerOfHelperSubrects = new Point();
+        PointF centerOfHelperSubrects = new PointF();
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {
                 centerOfHelperSubrects = smallCircles.get(x).get(y);
@@ -86,18 +86,18 @@ public class GameBoard implements GameEntity {
     }
     
     public void initialize(Canvas canvas) {
-        smallCircles = new ArrayList<List<Point>>(4);
+        smallCircles = new ArrayList<List<PointF>>(4);
         for (int i = 0; i < 4; i++) {
-            smallCircles.add(new ArrayList<Point>(4));
+            smallCircles.add(new ArrayList<PointF>(4));
         }
         size = new Size(canvas.getWidth(), canvas.getHeight());
         squareSize = min(size.getWidth(), size.getHeight());
     
         gameBoardBackgroundPaint = new Paint();
         gameBoardBackgroundPaint.setColor(MyColorPalette.Primary);
-        gameBoardBackground = new Rect(0, 0, (int) squareSize, + (int) squareSize);
-        
-        center = new Point(gameBoardBackground.centerX(), gameBoardBackground.centerY());
+        gameBoardBackground = new RectF(0, 0, (int) squareSize, + (int) squareSize);
+    
+        center = new PointF(gameBoardBackground.centerX(), gameBoardBackground.centerY());
         
         outline = new Paint();
         outline.setColor(MyColorPalette.PrimaryDark);
@@ -107,21 +107,26 @@ public class GameBoard implements GameEntity {
         
         mainCircleRadius = (squareSize - (squareSize * 0.05f)) / 2;
     
-        helperRectSize = (int) (mainCircleRadius * Math.sqrt(2));
-        helperRect = new Rect(
-                (int) (center.x - helperRectSize / 2.f),
-                (int) (center.y - helperRectSize / 2.f),
-                (int) (center.x + helperRectSize / 2.f),
-                (int) (center.y + helperRectSize / 2.f));
+        helperRectSize = mainCircleRadius * (float) Math.sqrt(2);
+        helperRect = new RectF(
+                center.x - helperRectSize / 2.f,
+                center.y - helperRectSize / 2.f,
+                center.x + helperRectSize / 2.f,
+                center.y + helperRectSize / 2.f);
         smallCirclesRadius = (helperRectSize / 4.f) / 2.f;
-        
-        Point centerOfHelperSubrects = new Point();
+    
+        PointF centerOfHelperSubrects = new PointF();
         for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 4; y++) {
+            for (int y = 0; y < 4; y++) {/*
                 centerOfHelperSubrects.set(
                         (int) (helperRect.left + smallCirclesRadius + x * smallCirclesRadius * 2.f),
                         (int) (helperRect.top + smallCirclesRadius + y * smallCirclesRadius * 2.f));
-                smallCircles.get(x).add(y, new Point(centerOfHelperSubrects));
+                smallCircles.get(x).add(y, new PointF(centerOfHelperSubrects));*/
+                smallCircles.get(y).add(
+                        new PointF(
+                                helperRect.left + smallCirclesRadius + x * smallCirclesRadius * 2.f,
+                                helperRect.top + smallCirclesRadius + y * smallCirclesRadius * 2.f
+                        ));
             }
         }
         
