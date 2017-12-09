@@ -2,6 +2,7 @@ package project.tamz.quarto;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -85,56 +86,118 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+    
                 //System.out.println("Clicked on x: " + event.getX() + " y: " + event.getY());
                 PointF clickedPos = new PointF(event.getX(), event.getY());
                 invalidate();
-            
-                GameObject selected = null;
-            
-                List<GameObject> availableObjects = quartoGameLogic.getAvailableGameObjects();
-            
-                float distance = 0.f;
-                float dx = 0.f;
-                float dy = 0.f;
-                float fingerRadius = 20.f;
-                float objectRadius = 0.f;
-                for (GameObject go : availableObjects) {
-                    if (go.getPosition() != null) {
-                        PointF pos = go.getPosition();
+    
+                if (quartoGameLogic.isSelecting()) {
+                    return handleSelecting(clickedPos);
+                }
+    
+                if (quartoGameLogic.isPlacing()) {
+                    return handlePlacing(clickedPos);
+                }
+    
+        }
+        return false;
+    }
+    
+    private boolean handleSelecting(PointF clickedPos) {
+        
+        GameObject selected = null;
+        List<GameObject> availableObjects = quartoGameLogic.getAvailableGameObjects();
+        
+        float distance = 0.f;
+        float dx = 0.f;
+        float dy = 0.f;
+        float fingerRadius = 20.f;
+        float objectRadius = 0.f;
+        for (GameObject go : availableObjects) {
+            if (go.getPosition() != null) {
+                PointF pos = go.getPosition();
+                
+                dx = pos.x - clickedPos.x;
+                dy = pos.y - clickedPos.y;
+                distance = (float) Math.sqrt(dx * dx + dy * dy);
+                //Log.d(TAG, "Distance : " + distance);
+                
+                objectRadius = go.getBoardSphereSize();
+                
+                if (distance <= objectRadius + fingerRadius) {
+                    Log.d(TAG, "Collision");
+                    if (selected == null)
+                        selected = go;
                     
-                        dx = pos.x - clickedPos.x;
-                        dy = pos.y - clickedPos.y;
-                        distance = (float) Math.sqrt(dx * dx + dy * dy);
-                        //Log.d(TAG, "Distance : " + distance);
-                    
-                        objectRadius = go.getBoardSphereSize();
-                    
-                        if (distance <= objectRadius + fingerRadius) {
-                            Log.d(TAG, "Collision");
-                            if (selected == null)
-                                selected = go;
+                    else {
                         
-                            else {
+                        float selectedDx = selected.getPosition().x - clickedPos.x;
+                        float selectedDy = selected.getPosition().y - clickedPos.y;
+                        
+                        float selectedDistance = (float) Math.sqrt(selectedDx * selectedDx + selectedDy * selectedDy);
+                        
+                        if (selectedDistance > distance) {
+                            selected = go;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (selected != null) {
+            return quartoGameLogic.setSelectedObject(selected);
+        }
+        return false;
+    }
+    
+    private boolean handlePlacing(PointF clickedPos) {
+        Point coords = null;
+        List<List<PointF>> placeCoords = gameBoard.getSmallCircles();
+        
+        float distance = 0.f;
+        float dx = 0.f;
+        float dy = 0.f;
+        float fingerRadius = 20.f;
+        float objectRadius = 0.f;
+        
+        if (placeCoords == null) return false;
+        
+        for (int y = 0; y < placeCoords.size(); y++) {
+            for (int x = 0; x < placeCoords.get(y).size(); x++) {
+                PointF pos = placeCoords.get(y).get(x);
+                if (pos != null) {
+                    dx = pos.x - clickedPos.x;
+                    dy = pos.y - clickedPos.y;
+                    distance = (float) Math.sqrt(dx * dx + dy * dy);
+                    
+                    objectRadius = gameBoard.getSmallCirclesRadius();
+                    
+                    if (distance <= objectRadius + fingerRadius) {
+                        Log.d(TAG, "Collision");
+                        
+                        if (coords == null) {
+                            coords = new Point(x, y);
+                        } else {
+                            PointF prevPos = placeCoords.get(coords.y).get(coords.x);
                             
-                                float selectedDx = selected.getPosition().x - clickedPos.x;
-                                float selectedDy = selected.getPosition().y - clickedPos.y;
+                            float prevDx = prevPos.x - clickedPos.x;
+                            float prevDy = prevPos.y - clickedPos.y;
+                            float prevDistance = (float) Math.sqrt(prevDx * prevDx + prevDy * prevDy);
                             
-                                float selectedDistance = (float) Math.sqrt(selectedDx * selectedDx + selectedDy * selectedDy);
-                            
-                                if (selectedDistance > distance) {
-                                    selected = go;
-                                }
+                            if (prevDistance > distance) {
+                                coords = new Point(x, y);
                             }
                         }
                     }
                 }
-            
-                if (selected != null) {
-                    return quartoGameLogic.setSelectedObject(selected);
-                }
-        
+            }
         }
-        return false;
+        
+        if (coords != null) {
+            Log.d(TAG, "selected:  " + coords.toString());
+        }
+        
+        return quartoGameLogic.place(coords);
     }
     
     public void update() {
@@ -151,7 +214,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         gameAvailableBoard.draw(canvas);
         drawSelectedObject(canvas);
         drawAvailableObjects(canvas);
-    
+        drawPlacedObjects(canvas);
+        
         if (gameActivity != null)
             gameActivity.editElapsedTime(getElapsed());
     }
@@ -183,6 +247,24 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 i++;
             }
         }
+    }
+    
+    private void drawPlacedObjects(Canvas canvas) {
+        GameObject objects[][] = quartoGameLogic.getPlacedObjects();
+        if (objects == null) return;
+        float radius = gameBoard.getSmallCirclesRadius();
+        for (int y = 0; y < objects.length; y++) {
+            for (int x = 0; x < objects[y].length; x++) {
+                GameObject o = objects[y][x];
+                if (o == null) continue;
+                
+                o.setPosition(gameBoard.getSmallCircles().get(x).get(y));
+                o.setBoardSphereSize(radius);
+                o.draw(canvas);
+                
+            }
+        }
+        
     }
     
     private Time getElapsed() {
