@@ -9,10 +9,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 public class MainActivity extends Activity {
-
-
-    Button startGameButton;
-    Button settingsButton;
+    
+    private Button startGameButton;
+    private Button settingsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +31,8 @@ public class MainActivity extends Activity {
             }
         });
     }
-
-
-    public void newGame() {
+    
+    private void newGame() {
 
         //setContentView(R.layout.activity_game/*new GamePanel(this)*/);
         Intent intent = new Intent(getApplicationContext(), GameActivity.class);

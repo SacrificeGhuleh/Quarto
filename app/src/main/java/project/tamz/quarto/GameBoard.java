@@ -17,7 +17,7 @@ import static java.lang.Math.min;
 
 public class GameBoard implements GameEntity {
     
-    public float smallCirclesRadius;
+    private float smallCirclesRadius;
     private Size size;
     private float squareSize;
     private Paint gameBoardBackgroundPaint;
@@ -76,27 +76,31 @@ public class GameBoard implements GameEntity {
         
         canvas.drawRect(gameBoardBackground, gameBoardBackgroundPaint);
         canvas.drawCircle(center.x, center.y, mainCircleRadius, outline);
-        PointF centerOfHelperSubrects = new PointF();
-        for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 4; y++) {
-                centerOfHelperSubrects = smallCircles.get(x).get(y);
-                canvas.drawCircle(centerOfHelperSubrects.x, centerOfHelperSubrects.y, smallCirclesRadius - (smallCirclesRadius * 0.05f), outline);
+        PointF centerOfHelperSubrects;
+        for (int y = 0; y < 4; y++) {
+            for (int x = 0; x < 4; x++) {
+                centerOfHelperSubrects = smallCircles.get(y).get(x);
+                canvas.drawCircle(
+                        centerOfHelperSubrects.x,
+                        centerOfHelperSubrects.y,
+                        smallCirclesRadius - (smallCirclesRadius * 0.05f),
+                        outline);
             }
         }
     }
     
-    public void initialize(Canvas canvas) {
-        smallCircles = new ArrayList<List<PointF>>(4);
+    private void initialize(Canvas canvas) {
+        smallCircles = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
             smallCircles.add(new ArrayList<PointF>(4));
         }
         size = new Size(canvas.getWidth(), canvas.getHeight());
         squareSize = min(size.getWidth(), size.getHeight());
-    
+        
         gameBoardBackgroundPaint = new Paint();
         gameBoardBackgroundPaint.setColor(MyColorPalette.Primary);
-        gameBoardBackground = new RectF(0, 0, (int) squareSize, + (int) squareSize);
-    
+        gameBoardBackground = new RectF(0.f, 0.f, squareSize, + squareSize);
+        
         center = new PointF(gameBoardBackground.centerX(), gameBoardBackground.centerY());
         
         outline = new Paint();
@@ -105,23 +109,19 @@ public class GameBoard implements GameEntity {
         outline.setStrokeWidth(4.f);
         outline.setAntiAlias(true);
         
-        mainCircleRadius = (squareSize - (squareSize * 0.05f)) / 2;
-    
-        helperRectSize = mainCircleRadius * (float) Math.sqrt(2);
+        mainCircleRadius = (squareSize - (squareSize * 0.05f)) / 2.f;
+        
+        helperRectSize = mainCircleRadius * (float) Math.sqrt(2.f);
         helperRect = new RectF(
                 center.x - helperRectSize / 2.f,
                 center.y - helperRectSize / 2.f,
                 center.x + helperRectSize / 2.f,
                 center.y + helperRectSize / 2.f);
         smallCirclesRadius = (helperRectSize / 4.f) / 2.f;
-    
+        
         PointF centerOfHelperSubrects = new PointF();
         for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 4; y++) {/*
-                centerOfHelperSubrects.set(
-                        (int) (helperRect.left + smallCirclesRadius + x * smallCirclesRadius * 2.f),
-                        (int) (helperRect.top + smallCirclesRadius + y * smallCirclesRadius * 2.f));
-                smallCircles.get(x).add(y, new PointF(centerOfHelperSubrects));*/
+            for (int y = 0; y < 4; y++) {
                 smallCircles.get(y).add(
                         new PointF(
                                 helperRect.left + smallCirclesRadius + x * smallCirclesRadius * 2.f,

@@ -29,7 +29,7 @@ public class GameAvailableBoard implements GameEntity {
     }
     
     public float getCellWidth() {
-        return cellWidth;
+        return cellWidth / 2;
     }
     
     public List<List<PointF>> getAvailablePositions() {
@@ -42,55 +42,36 @@ public class GameAvailableBoard implements GameEntity {
             initialize(canvas);
         canvas.drawRect(background, backgroundPaint);
         
-        /*float count = 7.f;
-        Paint linePaint = new Paint();
-        linePaint.setColor(MyColorPalette.PrimaryLight);
-        
-        float width = canvas.getWidth() / count;
-        for (int i = 0; i < count; i++) {
-            float x = (width * i) + width / 2;
-            float y = background.top + (width * i) + width / 2;
-            canvas.drawLine(x, background.top, x, background.bottom, linePaint);
-            canvas.drawLine(background.left, y, background.right, y, linePaint);
-        }*/
-    
         RectF selectedRect = new RectF(
-                selectedPos.x - cellWidth / 2,
-                selectedPos.y - cellWidth / 2,
-                selectedPos.x + cellWidth / 2,
-                selectedPos.y + cellWidth / 2
+                selectedPos.x - cellWidth / 2.f,
+                selectedPos.y - cellWidth / 2.f,
+                selectedPos.x + cellWidth / 2.f,
+                selectedPos.y + cellWidth / 2.f
         );
         
         /*
         * Selected game object
         * */
-        canvas.drawRoundRect(selectedRect, 10, 10, cellPaint);
-        canvas.drawRoundRect(selectedRect, 10, 10, cellOutlinePaint);
+        canvas.drawRoundRect(selectedRect, 10.f, 10.f, cellPaint);
+        canvas.drawRoundRect(selectedRect, 10.f, 10.f, cellOutlinePaint);
     
         for (int y = 0; y < availablePositions.size(); y++) {
             for (int x = 0; x < availablePositions.get(y).size(); x++) {
                 //canvas.drawCircle(availablePositions.get(y).get(x).x, availablePositions.get(y).get(x).y, 10, cellPaint);
                 PointF point = new PointF(availablePositions.get(y).get(x).x, availablePositions.get(y).get(x).y);
                 RectF availableSubRect = new RectF(
-                        point.x - cellWidth / 2,
-                        point.y - cellWidth / 2,
-                        point.x + cellWidth / 2,
-                        point.y + cellWidth / 2
+                        point.x - cellWidth / 2.f,
+                        point.y - cellWidth / 2.f,
+                        point.x + cellWidth / 2.f,
+                        point.y + cellWidth / 2.f
                 );
-                canvas.drawRoundRect(availableSubRect, 10, 10, cellPaint);
-                canvas.drawRoundRect(availableSubRect, 10, 10, cellOutlinePaint);
+                canvas.drawRoundRect(availableSubRect, 10.f, 10.f, cellPaint);
+                canvas.drawRoundRect(availableSubRect, 10.f, 10.f, cellOutlinePaint);
             }
         }
-        
-        /*GameObject test = new GameObject((byte)0b1011);
-        test.setPosition(new PointF((int)selectedPos.x, (int)selectedPos.y));
-        test.setBoardSphereSize(cellWidth);
-        test.draw(canvas);*/
-        //canvas.drawCircle(selectedPos.x, selectedPos.y, cellWidth*0.9f/2.f, cellPaint);
-        
     }
     
-    void initialize(Canvas canvas) {
+    private void initialize(Canvas canvas) {
         /*
         * todo: initialize Available game board
         * */
@@ -99,7 +80,7 @@ public class GameAvailableBoard implements GameEntity {
         cellWidth = canvas.getWidth() / count;
     
         background = new RectF(
-                0,
+                0.f,
                 canvas.getWidth(),
                 canvas.getWidth(),
                 canvas.getHeight()
@@ -118,8 +99,8 @@ public class GameAvailableBoard implements GameEntity {
         cellOutlinePaint.setStrokeWidth(4.f);
     
         selectedPos = new PointF(cellWidth * 6.f, background.top + cellWidth * 1.f);
-    
-        availablePositions = new ArrayList<List<PointF>>(3);
+        
+        availablePositions = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
             availablePositions.add(new ArrayList<PointF>(6));
         }

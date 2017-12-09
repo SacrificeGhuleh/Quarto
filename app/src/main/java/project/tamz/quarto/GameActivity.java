@@ -8,11 +8,10 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 public class GameActivity extends Activity {
-
-
-    GamePanel panel;
-    TextView elapsedTime;
-    ConstraintLayout statusBarLayout;
+    
+    private GamePanel panel;
+    private TextView elapsedTime;
+    private ConstraintLayout statusBarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

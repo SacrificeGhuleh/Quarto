@@ -7,10 +7,10 @@ import android.view.SurfaceHolder;
  * Created by Richard Zvonek on 02/12/2017.
  */
 
-public class GameThread extends Thread {
-    public static final int FPS_LOCK = 30;
-    public static Canvas canvas;
-    public double avgFPS;
+class GameThread extends Thread {
+    private static final int FPS_LOCK = 30;
+    private static Canvas canvas;
+    private double avgFPS;
     private SurfaceHolder surfaceHolder;
     private GamePanel gamePanel;
     private boolean running;

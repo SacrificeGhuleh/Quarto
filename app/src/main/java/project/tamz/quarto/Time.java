@@ -10,24 +10,12 @@ public class Time {
     private long minutesInMilli = secondsInMilli * 60;
     private long hoursInMilli = minutesInMilli * 60;
 
-    Time(long millis) {
-        set(millis);
-    }
-
     Time() {
         this(0);
     }
-
-    public long getH() {
-        return h;
-    }
-
-    public long getM() {
-        return m;
-    }
-
-    public long getS() {
-        return s;
+    
+    private Time(long millis) {
+        set(millis);
     }
 
     void set(long millis) {
@@ -39,6 +27,18 @@ public class Time {
         millis %= minutesInMilli;
 
         s = millis / secondsInMilli;
+    }
+    
+    public long getH() {
+        return h;
+    }
+    
+    public long getM() {
+        return m;
+    }
+    
+    public long getS() {
+        return s;
     }
 
     @Override

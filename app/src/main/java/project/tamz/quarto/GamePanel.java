@@ -33,7 +33,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         init();
     }
     
-    public void init() {
+    private void init() {
         gameBoard = new GameBoard();
         ganeStatusBar = new GaneStatusBar();
         gameAvailableBoard = new GameAvailableBoard();
@@ -126,8 +126,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             for (int x = 0; x < availablePlaces.get(y).size(); x++) {
                 availableObjects2.get(i).setPosition(
                         new PointF(
-                                (int) availablePlaces.get(y).get(x).x,
-                                (int) availablePlaces.get(y).get(x).y
+                                availablePlaces.get(y).get(x).x,
+                                availablePlaces.get(y).get(x).y
                         ));
                 availableObjects2.get(i).setBoardSphereSize(radius2);
                 i++;
@@ -143,7 +143,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             gameActivity.editElapsedTime(getElapsed());
     }
     
-    Time getElapsed() {
+    private Time getElapsed() {
         return ganeStatusBar.getGameTime();
     }
 }

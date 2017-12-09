@@ -81,7 +81,7 @@ public class GameObject implements GameEntity {
     
     @Override
     public void draw(Canvas canvas) {
-        if (position == null || boardSphereSize <= 0)
+        if (position == null || boardSphereSize <= 0.f)
             return;
         
         Paint objectColor = new Paint();
@@ -95,8 +95,8 @@ public class GameObject implements GameEntity {
         Paint boardColor = new Paint();
         boardColor.setColor(MyColorPalette.Primary);
         boardColor.setAntiAlias(true);
-        
-        float size = (float) (sqrt(2) * boardSphereSize);
+    
+        float size = (float) sqrt(2.f) * boardSphereSize;
         
         if (! tall) {
             size *= (2.f / 3.f);
@@ -105,10 +105,10 @@ public class GameObject implements GameEntity {
         
         if (square) {
             RectF rect = new RectF(
-                    (int) (position.x - (size / 2) * 0.9),
-                    (int) (position.y - (size / 2) * 0.9),
-                    (int) (position.x + (size / 2) * 0.9),
-                    (int) (position.y + (size / 2) * 0.9));
+                    position.x - (size / 2) * 0.9f,
+                    position.y - (size / 2) * 0.9f,
+                    position.x + (size / 2) * 0.9f,
+                    position.y + (size / 2) * 0.9f);
             canvas.drawRoundRect(rect, 10, 10, objectColor);
             //canvas.drawRect(rect, objectColor);
         } else {

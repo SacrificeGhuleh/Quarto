@@ -9,8 +9,8 @@ import java.util.List;
  * Created by Richard Zvonek on 03/12/2017.
  */
 
-public class QuartoGameLogic {
-    private List<GameObject> availableGameObjects = new ArrayList<GameObject>();
+class QuartoGameLogic {
+    private List<GameObject> availableGameObjects = new ArrayList<>();
     private GameObject gameBoard[][] = new GameObject[4][4];
     public QuartoGameLogic() {
         for (byte b = 0; b < 16; b++) {
