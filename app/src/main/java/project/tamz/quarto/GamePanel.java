@@ -3,12 +3,16 @@ package project.tamz.quarto;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Richard Zvonek on 02/12/2017.
@@ -22,6 +26,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private GameBoard gameBoard;
     private GaneStatusBar ganeStatusBar;
     private QuartoGameLogic quartoGameLogic;
+    private GameAvailableBoard gameAvailableBoard;
     
     public GamePanel(Context ctx) {
         super(ctx);
@@ -30,9 +35,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
     
     public void init() {
-        
         gameBoard = new GameBoard();
         ganeStatusBar = new GaneStatusBar();
+        gameAvailableBoard = new GameAvailableBoard();
         
         getHolder().addCallback(this);
         
@@ -95,23 +100,45 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         
         ganeStatusBar.draw(canvas);
         gameBoard.draw(canvas);
+        gameAvailableBoard.draw(canvas);
         
         List<GameObject> availableObjects = quartoGameLogic.getAvailableGameObjects();
+        List<GameObject> availableObjects2 = availableObjects;
         
         float radius = gameBoard.getSmallCirclesRadius();
         List<List<Point>> gameBoardPlaces = gameBoard.getSmallCircles();
         int i = 0;
-        for (int x = 0; x < gameBoardPlaces.size(); x++) {
-            for (int y = 0; y < gameBoardPlaces.get(x).size(); y++) {
-                availableObjects.get(i).setPosition(gameBoardPlaces.get(x).get(y));
+        for (int y = 0; y < gameBoardPlaces.size(); y++) {
+            for (int x = 0; x < gameBoardPlaces.get(y).size(); x++) {
+                availableObjects.get(i).setPosition(gameBoardPlaces.get(y).get(x));
                 availableObjects.get(i).setBoardSphereSize(radius);
                 i++;
             }
         }
+        i = 0;
         
         for (GameObject go : availableObjects)
             go.draw(canvas);
-        
+    
+        float radius2 = gameAvailableBoard.getCellWidth();
+        List<List<PointF>> availablePlaces = gameAvailableBoard.getAvailablePositions();
+    
+        for (int y = 0; y < availablePlaces.size(); y++) {
+            for (int x = 0; x < availablePlaces.get(y).size(); x++) {
+                availableObjects2.get(i).setPosition(
+                        new Point(
+                                (int) availablePlaces.get(y).get(x).x,
+                                (int) availablePlaces.get(y).get(x).y
+                        ));
+                availableObjects2.get(i).setBoardSphereSize(radius2);
+                i++;
+            }
+        }
+    
+        for (GameObject go : availableObjects2) {
+            go.draw(canvas);
+            Log.d(TAG, "draw: " + go.toString());
+        }
         
         if (gameActivity != null)
             gameActivity.editElapsedTime(getElapsed());

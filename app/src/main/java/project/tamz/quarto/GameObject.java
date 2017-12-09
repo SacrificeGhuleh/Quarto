@@ -3,7 +3,7 @@ package project.tamz.quarto;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Rect;
+import android.graphics.RectF;
 
 import static java.lang.Math.sqrt;
 
@@ -86,13 +86,15 @@ public class GameObject implements GameEntity {
         
         Paint objectColor = new Paint();
         if (black) {
-            objectColor.setColor(MyColorPalette.PrimaryDark);
+            objectColor.setColor(MyColorPalette.PrimaryText);
         } else {
-            objectColor.setColor(MyColorPalette.PrimaryLight);
+            objectColor.setColor(MyColorPalette.PrimaryDark);
         }
+        objectColor.setAntiAlias(true);
         
         Paint boardColor = new Paint();
         boardColor.setColor(MyColorPalette.Primary);
+        boardColor.setAntiAlias(true);
         
         float size = (float) (sqrt(2) * boardSphereSize);
         
@@ -102,12 +104,13 @@ public class GameObject implements GameEntity {
         //Log.d("big", "Size: " + size);
         
         if (square) {
-            Rect rect = new Rect(
+            RectF rect = new RectF(
                     (int) (position.x - (size / 2) * 0.9),
                     (int) (position.y - (size / 2) * 0.9),
                     (int) (position.x + (size / 2) * 0.9),
                     (int) (position.y + (size / 2) * 0.9));
-            canvas.drawRect(rect, objectColor);
+            canvas.drawRoundRect(rect, 10, 10, objectColor);
+            //canvas.drawRect(rect, objectColor);
         } else {
             canvas.drawCircle(position.x, position.y, size / 2, objectColor);
         }
@@ -118,14 +121,14 @@ public class GameObject implements GameEntity {
     }
     
     @Override
-    public int hashCode() {
-        
-        return super.hashCode();
+    public void update() {
+    
     }
     
     @Override
-    public void update() {
-    
+    public int hashCode() {
+        
+        return super.hashCode();
     }
     
     @Override
