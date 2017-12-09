@@ -50,6 +50,10 @@ public class GameObject implements GameEntity {
         super();
     }*/
     
+    public boolean isTall() {
+        return tall;
+    }
+    
     public byte getCode() {
         return code;
     }
@@ -62,10 +66,6 @@ public class GameObject implements GameEntity {
         this.square = square;
         this.hole = hole;
     }*/
-    
-    public boolean isTall() {
-        return tall;
-    }
     
     public boolean isBlack() {
         return black;
@@ -133,7 +133,10 @@ public class GameObject implements GameEntity {
     
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj);
+        if (obj != null && obj instanceof GameObject) {
+            return ((GameObject) obj).getCode() == this.getCode();
+        }
+        return false;
     }
     
     @Override

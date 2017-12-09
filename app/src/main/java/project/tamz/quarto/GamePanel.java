@@ -83,9 +83,58 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        System.out.println("Clicked on x: " + event.getX() + " y: " + event.getY());
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                //System.out.println("Clicked on x: " + event.getX() + " y: " + event.getY());
+                PointF clickedPos = new PointF(event.getX(), event.getY());
+                invalidate();
+            
+                GameObject selected = null;
+            
+                List<GameObject> availableObjects = quartoGameLogic.getAvailableGameObjects();
+            
+                float distance = 0.f;
+                float dx = 0.f;
+                float dy = 0.f;
+                float fingerRadius = 20.f;
+                float objectRadius = 0.f;
+                for (GameObject go : availableObjects) {
+                    if (go.getPosition() != null) {
+                        PointF pos = go.getPosition();
+                    
+                        dx = pos.x - clickedPos.x;
+                        dy = pos.y - clickedPos.y;
+                        distance = (float) Math.sqrt(dx * dx + dy * dy);
+                        //Log.d(TAG, "Distance : " + distance);
+                    
+                        objectRadius = go.getBoardSphereSize();
+                    
+                        if (distance <= objectRadius + fingerRadius) {
+                            Log.d(TAG, "Collision");
+                            if (selected == null)
+                                selected = go;
+                        
+                            else {
+                            
+                                float selectedDx = selected.getPosition().x - clickedPos.x;
+                                float selectedDy = selected.getPosition().y - clickedPos.y;
+                            
+                                float selectedDistance = (float) Math.sqrt(selectedDx * selectedDx + selectedDy * selectedDy);
+                            
+                                if (selectedDistance > distance) {
+                                    selected = go;
+                                }
+                            }
+                        }
+                    }
+                }
+            
+                if (selected != null) {
+                    return quartoGameLogic.setSelectedObject(selected);
+                }
         
-        return super.onTouchEvent(event);
+        }
+        return false;
     }
     
     public void update() {
@@ -100,47 +149,40 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         ganeStatusBar.draw(canvas);
         gameBoard.draw(canvas);
         gameAvailableBoard.draw(canvas);
-        
-        List<GameObject> availableObjects = quartoGameLogic.getAvailableGameObjects();
-        List<GameObject> availableObjects2 = availableObjects;
-        
-        float radius = gameBoard.getSmallCirclesRadius();
-        List<List<PointF>> gameBoardPlaces = gameBoard.getSmallCircles();
-        int i = 0;
-        for (int y = 0; y < gameBoardPlaces.size(); y++) {
-            for (int x = 0; x < gameBoardPlaces.get(y).size(); x++) {
-                availableObjects.get(i).setPosition(gameBoardPlaces.get(y).get(x));
-                availableObjects.get(i).setBoardSphereSize(radius);
-                i++;
-            }
-        }
-        i = 0;
-        
-        for (GameObject go : availableObjects)
-            go.draw(canvas);
+        drawSelectedObject(canvas);
+        drawAvailableObjects(canvas);
     
-        float radius2 = gameAvailableBoard.getCellWidth();
-        List<List<PointF>> availablePlaces = gameAvailableBoard.getAvailablePositions();
-    
-        for (int y = 0; y < availablePlaces.size(); y++) {
-            for (int x = 0; x < availablePlaces.get(y).size(); x++) {
-                availableObjects2.get(i).setPosition(
-                        new PointF(
-                                availablePlaces.get(y).get(x).x,
-                                availablePlaces.get(y).get(x).y
-                        ));
-                availableObjects2.get(i).setBoardSphereSize(radius2);
-                i++;
-            }
-        }
-    
-        for (GameObject go : availableObjects2) {
-            go.draw(canvas);
-            Log.d(TAG, "draw: " + go.toString());
-        }
-        
         if (gameActivity != null)
             gameActivity.editElapsedTime(getElapsed());
+    }
+    
+    public void drawSelectedObject(Canvas canvas) {
+        GameObject selectedObject = quartoGameLogic.getSelectedObject();
+        if (selectedObject == null) return;
+        float radius = gameAvailableBoard.getCellWidth() / 2.f;
+        selectedObject.setBoardSphereSize(radius);
+        selectedObject.setPosition(gameAvailableBoard.getSelectedPos());
+        selectedObject.draw(canvas);
+    }
+    
+    public void drawAvailableObjects(Canvas canvas) {
+        //List<GameObject> availableObjects = quartoGameLogic.getAvailableGameObjects();
+        float radius = gameAvailableBoard.getCellWidth() / 2.f;
+        
+        List<List<PointF>> availablePlaces = gameAvailableBoard.getAvailablePositions();
+        
+        int availableCunt = quartoGameLogic.getAvailableGameObjects().size();
+        
+        int i = 0;
+        for (int y = 0; y < availablePlaces.size(); y++) {
+            for (int x = 0; x < availablePlaces.get(y).size(); x++) {
+                if (i >= availableCunt) break;
+                quartoGameLogic.getAvailableGameObjects().get(i).setPosition(availablePlaces.get(y).get(x));
+                quartoGameLogic.getAvailableGameObjects().get(i).setBoardSphereSize(radius);
+                quartoGameLogic.getAvailableGameObjects().get(i).draw(canvas);
+                i++;
+            }
+        }
     }
     
     private Time getElapsed() {

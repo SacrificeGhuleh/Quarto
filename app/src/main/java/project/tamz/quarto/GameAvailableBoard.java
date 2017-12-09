@@ -29,7 +29,7 @@ public class GameAvailableBoard implements GameEntity {
     }
     
     public float getCellWidth() {
-        return cellWidth / 2;
+        return cellWidth;
     }
     
     public List<List<PointF>> getAvailablePositions() {
@@ -107,7 +107,7 @@ public class GameAvailableBoard implements GameEntity {
     
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 6; x++) {
-                if (y >= 2 && x >= 2) break; //Only 2 cells on 3rd row
+                if (y >= 2 && x >= 4) break; //Only 2 cells on 3rd row
                 availablePositions.get(y).add(new PointF(cellWidth * (x + 1), background.top + cellWidth * (y + 2)));
             }
         }
