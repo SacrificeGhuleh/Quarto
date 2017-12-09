@@ -1,7 +1,11 @@
 package project.tamz.quarto;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
+
+import static java.lang.Math.sqrt;
 
 /**
  * Created by Richard Zvonek on 03/12/2017.
@@ -13,31 +17,31 @@ public class GameObject implements GameEntity {
     private boolean square;
     private boolean hole;
     private byte code;
-    private int boardSphereSize = 0;
+    private float boardSphereSize = 0.f;
     private Point position;
-
+    
     public GameObject(byte code) {
         super();
-
+        
         this.tall = (code & 8) == 0;
         this.black = (code & 4) == 0;
         this.square = (code & 2) == 0;
         this.hole = (code & 1) == 0;
         this.code = code;
     }
-
-    public int getBoardSphereSize() {
+    
+    public float getBoardSphereSize() {
         return boardSphereSize;
     }
-
-    public void setBoardSphereSize(int boardSphereSize) {
+    
+    public void setBoardSphereSize(float boardSphereSize) {
         this.boardSphereSize = boardSphereSize;
     }
-
+    
     public Point getPosition() {
         return position;
     }
-
+    
     public void setPosition(Point position) {
         this.position = position;
     }
@@ -45,7 +49,7 @@ public class GameObject implements GameEntity {
     /*public GameObject() {
         super();
     }*/
-
+    
     public byte getCode() {
         return code;
     }
@@ -58,62 +62,90 @@ public class GameObject implements GameEntity {
         this.square = square;
         this.hole = hole;
     }*/
-
+    
     public boolean isTall() {
         return tall;
     }
-
+    
     public boolean isBlack() {
         return black;
     }
-
+    
     public boolean isSquare() {
         return square;
     }
-
+    
     public boolean isHole() {
         return hole;
     }
-
-    @Override
-    public int hashCode() {
-
-        return super.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
-    @Override
-    public String toString() {
-        return "GameObject ID:" + hashCode() + " Tall: " + tall + " Black " + black + " Square " + square + " Hole " + hole;
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
-
+    
     @Override
     public void draw(Canvas canvas) {
         if (position == null || boardSphereSize <= 0)
             return;
-
-        //todo vykreslovani
-
-
-
+        
+        Paint objectColor = new Paint();
+        if (black) {
+            objectColor.setColor(MyColorPalette.PrimaryDark);
+        } else {
+            objectColor.setColor(MyColorPalette.PrimaryLight);
+        }
+        
+        Paint boardColor = new Paint();
+        boardColor.setColor(MyColorPalette.Primary);
+        
+        float size = (float) (sqrt(2) * boardSphereSize);
+        
+        if (! tall) {
+            size *= (2.f / 3.f);
+        }
+        //Log.d("big", "Size: " + size);
+        
+        if (square) {
+            Rect rect = new Rect(
+                    (int) (position.x - (size / 2) * 0.9),
+                    (int) (position.y - (size / 2) * 0.9),
+                    (int) (position.x + (size / 2) * 0.9),
+                    (int) (position.y + (size / 2) * 0.9));
+            canvas.drawRect(rect, objectColor);
+        } else {
+            canvas.drawCircle(position.x, position.y, size / 2, objectColor);
+        }
+        
+        if (hole) {
+            canvas.drawCircle(position.x, position.y, size / 4, boardColor);
+        }
     }
-
+    
+    @Override
+    public int hashCode() {
+        
+        return super.hashCode();
+    }
+    
     @Override
     public void update() {
-
+    
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+    
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    
+    @Override
+    public String toString() {
+        return "GameObject ID:" + hashCode() + " Tall: " + tall + " Black " + black + " Square " + square + " Hole " + hole;
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+    }
+    
 }

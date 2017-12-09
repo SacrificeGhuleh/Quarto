@@ -72,7 +72,7 @@ public class GameThread extends Thread {
                 avgFPS = 1000 / ((totalTime / frameCunt) / 1000000);
                 frameCunt = 0;
                 totalTime = 0;
-                System.out.println("FPS: " + avgFPS);
+                //System.out.println("FPS: " + avgFPS);
             }
         }
     }

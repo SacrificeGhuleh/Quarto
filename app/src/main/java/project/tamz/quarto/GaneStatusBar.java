@@ -17,19 +17,19 @@ public class GaneStatusBar implements GameEntity {
     public GaneStatusBar() {
         gameTime = new Time();
         creationTime = System.currentTimeMillis();
-        System.out.println("Status bar created in  : " + creationTime);
+        //System.out.println("Status bar created in  : " + creationTime);
+    }
+    
+    @Override
+    public void draw(Canvas canvas) {
+        getGameTime();
     }
 
     public Time getGameTime() {
         currentTime = System.currentTimeMillis();
         gameTime.set(currentTime - creationTime);
-        System.out.println(gameTime);
+        //System.out.println(gameTime);
         return gameTime;
-    }
-
-    @Override
-    public void draw(Canvas canvas) {
-        getGameTime();
     }
 
     @Override
