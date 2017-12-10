@@ -24,15 +24,24 @@ public class GameBoard implements GameEntity {
     private RectF gameBoardBackground;
     private PointF center;
     private Paint outline;
+    private Paint highlightOutline;
     private float mainCircleRadius;
     private float helperRectSize;
     private RectF helperRect;
+    private boolean highLights[][];
     
     private boolean initialized = false;
     private List<List<PointF>> smallCircles;
     
     public GameBoard() {
         super();
+    
+        highLights = new boolean[4][4];
+        for (int i = 0; i < highLights.length; i++) {
+            for (int j = 0; j < highLights[i].length; j++) {
+                highLights[i][j] = false;
+            }
+        }
     }
     
     public float getSmallCirclesRadius() {
@@ -79,12 +88,18 @@ public class GameBoard implements GameEntity {
         PointF centerOfHelperSubrects;
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
+                Paint currPaint;
+                if (highLights[y][x])
+                    currPaint = highlightOutline;
+                else
+                    currPaint = outline;
+                
                 centerOfHelperSubrects = smallCircles.get(y).get(x);
                 canvas.drawCircle(
                         centerOfHelperSubrects.x,
                         centerOfHelperSubrects.y,
                         smallCirclesRadius - (smallCirclesRadius * 0.05f),
-                        outline);
+                        currPaint);
             }
         }
     }
@@ -108,6 +123,12 @@ public class GameBoard implements GameEntity {
         outline.setStyle(Paint.Style.STROKE);
         outline.setStrokeWidth(4.f);
         outline.setAntiAlias(true);
+    
+        highlightOutline = new Paint();
+        highlightOutline.setColor(MyColorPalette.PrimaryHighlight);
+        highlightOutline.setStyle(Paint.Style.STROKE);
+        highlightOutline.setStrokeWidth(4.f);
+        highlightOutline.setAntiAlias(true);
         
         mainCircleRadius = (squareSize - (squareSize * 0.05f)) / 2.f;
         
@@ -138,4 +159,7 @@ public class GameBoard implements GameEntity {
     
     }
     
+    public void setHighLights(boolean[][] highLights) {
+        this.highLights = highLights;
+    }
 }

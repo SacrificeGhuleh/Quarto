@@ -16,11 +16,20 @@ import static android.content.ContentValues.TAG;
 class QuartoGameLogic {
     private List<GameObject> availableGameObjects = new ArrayList<>();
     private GameObject gameBoard[][] = new GameObject[4][4];
+    private boolean commonHighlights[][];
     private GameObject selectedObject = null;
     private boolean selecting = false;
     private boolean placing = false;
-    
     public QuartoGameLogic() {
+    
+        commonHighlights = new boolean[4][4];
+        for (int i = 0; i < commonHighlights.length; i++) {
+            for (int j = 0; j < commonHighlights[i].length; j++) {
+                commonHighlights[i][j] = false;
+            }
+        }
+        
+        
         for (byte b = 0; b < 16; b++) {
             availableGameObjects.add(new GameObject(b));
         }
@@ -30,6 +39,10 @@ class QuartoGameLogic {
         }
         
         selecting = true;
+    }
+    
+    public boolean[][] getCommonHighlights() {
+        return commonHighlights;
     }
     
     public GameObject[][] getPlacedObjects() {
@@ -79,17 +92,8 @@ class QuartoGameLogic {
         return availableGameObjects;
     }
     
-    private boolean hasCommon(GameObject args[]) {
-        int val = 0;
-        
-        for (GameObject go : args) {
-            val &= go.getCode();
-        }
-        
-        return val != 0;
-    }
-    
     public boolean place(Point coords) {
+        if (coords == null) return false;
         if (coords.x < 0 || coords.y < 0 || coords.x > 4 || coords.y > 4)
             return false;
         
@@ -100,9 +104,74 @@ class QuartoGameLogic {
             
             placing = false;
             selecting = true;
+    
+            checkGameBoard();
             
             return true;
         }
         return false;
+    }
+    
+    private boolean checkGameBoard() {
+        //check rows and cols
+        List<GameObject> rows = new ArrayList<>();
+        List<GameObject> cols = new ArrayList<>();
+        
+        boolean foundCommonAttribute = false;
+        
+        for (int y = 0; y < 4; y++) {
+            rows.clear();
+            cols.clear();
+            for (int x = 0; x < 4; x++) {
+                if (gameBoard[y][x] != null)
+                    cols.add(gameBoard[y][x]);
+                
+                if (gameBoard[x][y] != null)
+                    rows.add(gameBoard[x][y]);
+            }
+            if (rows.size() == 4) {
+                if (hasCommon(rows)) {
+                    Log.d(TAG, "Common attribute found in row " + y);
+                    foundCommonAttribute = true;
+                    highlightRow(y);
+                }
+            }
+            
+            if (cols.size() == 4) {
+                if (hasCommon(cols)) {
+                    Log.d(TAG, "Common attribute found in column " + y);
+                    foundCommonAttribute = true;
+                    highlightCol(y);
+                }
+            }
+        }
+        
+        return foundCommonAttribute;
+    }
+    
+    private boolean hasCommon(@NonNull List<GameObject> args) {
+        boolean valIsSet = false;
+        
+        int result = 0;
+        
+        if (args.size() == 4) {
+            //TODO: This is stupid, but works... So it is not stupid?
+            result = ~ ((args.get(0).getCode() & args.get(1).getCode() & args.get(2).getCode() & args.get(3).getCode()) | (~ args.get(0).getCode() & ~ args.get(1).getCode() & ~ args.get(2).getCode() & ~ args.get(3).getCode()));
+            return result != 0b1111;
+        }
+        
+        Log.d(TAG, "XOR value: " + result + " Binary: " + Integer.toBinaryString(result));
+        
+        return false;
+    }
+    
+    private void highlightRow(int row) {
+        for (int i = 0; i < commonHighlights[row].length; i++)
+            commonHighlights[row][i] = true;
+    }
+    
+    private void highlightCol(int col) {
+        for (int i = 0; i < commonHighlights.length; i++)
+            commonHighlights[i][col] = true;
     }
 }

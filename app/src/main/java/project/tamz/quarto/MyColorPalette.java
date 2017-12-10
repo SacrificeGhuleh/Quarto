@@ -11,4 +11,5 @@ class MyColorPalette {
     static public int PrimaryLight = Color.rgb(0xff, 0xff, 0xff);
     static public int PrimaryDark = Color.rgb(0xbd, 0xb9, 0xb7);
     static public int PrimaryText = Color.rgb(0x42, 0x42, 0x42);
+    static public int PrimaryHighlight = Color.rgb(0xcb, 0x9b, 0x8c);
 }

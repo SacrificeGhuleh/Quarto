@@ -210,6 +210,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawColor(MyColorPalette.PrimaryLight);
         
         ganeStatusBar.draw(canvas);
+    
+        gameBoard.setHighLights(quartoGameLogic.getCommonHighlights());
         gameBoard.draw(canvas);
         gameAvailableBoard.draw(canvas);
         drawSelectedObject(canvas);
@@ -256,12 +258,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         for (int y = 0; y < objects.length; y++) {
             for (int x = 0; x < objects[y].length; x++) {
                 GameObject o = objects[y][x];
-                if (o == null ) continue;
+                if (o == null) continue;
                 
                 o.setPosition(gameBoard.getSmallCircles().get(x).get(y));
                 o.setBoardSphereSize(radius);
                 o.draw(canvas);
-                
             }
         }
         
