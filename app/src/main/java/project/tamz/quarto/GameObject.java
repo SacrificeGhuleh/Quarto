@@ -22,11 +22,11 @@ public class GameObject implements GameEntity {
     
     public GameObject(byte code) {
         super();
-        
-        this.tall = (code & 8) == 0;
-        this.black = (code & 4) == 0;
-        this.square = (code & 2) == 0;
-        this.hole = (code & 1) == 0;
+    
+        this.tall = (code & 0b1000) == 0;
+        this.black = (code & 0b100) == 0;
+        this.square = (code & 0b10) == 0;
+        this.hole = (code & 0b1) == 0;
         this.code = code;
     }
     
@@ -54,6 +54,10 @@ public class GameObject implements GameEntity {
         return tall;
     }
     
+    public boolean isBlack() {
+        return black;
+    }
+    
     public byte getCode() {
         return code;
     }
@@ -66,10 +70,6 @@ public class GameObject implements GameEntity {
         this.square = square;
         this.hole = hole;
     }*/
-    
-    public boolean isBlack() {
-        return black;
-    }
     
     public boolean isSquare() {
         return square;

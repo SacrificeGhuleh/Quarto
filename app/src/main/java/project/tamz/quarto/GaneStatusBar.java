@@ -7,13 +7,12 @@ import android.graphics.Canvas;
  */
 
 public class GaneStatusBar implements GameEntity {
-
+    
     private long creationTime;
     private long currentTime;
-
+    
     private Time gameTime;
-
-
+    
     public GaneStatusBar() {
         gameTime = new Time();
         creationTime = System.currentTimeMillis();
@@ -21,19 +20,18 @@ public class GaneStatusBar implements GameEntity {
     
     @Override
     public void draw(Canvas canvas) {
+    
+    }
+    
+    @Override
+    public void update() {
         getGameTime();
     }
-
+    
     public Time getGameTime() {
         currentTime = System.currentTimeMillis();
         gameTime.set(currentTime - creationTime);
         return gameTime;
     }
-
-    @Override
-    public void update() {
-
-    }
-
-
+    
 }

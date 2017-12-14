@@ -72,10 +72,6 @@ public class GameAvailableBoard implements GameEntity {
     }
     
     private void initialize(Canvas canvas) {
-        /*
-        * todo: initialize Available game board
-        * */
-    
         float count = 7.f;
         cellWidth = canvas.getWidth() / count;
     

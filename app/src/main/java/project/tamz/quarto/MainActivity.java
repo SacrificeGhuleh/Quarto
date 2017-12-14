@@ -30,13 +30,23 @@ public class MainActivity extends Activity {
                 newGame();
             }
         });
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                settings();
+            }
+        });
     }
     
     private void newGame() {
-
-        //setContentView(R.layout.activity_game/*new GamePanel(this)*/);
         Intent intent = new Intent(getApplicationContext(), GameActivity.class);
-
+        
+        startActivity(intent);
+    }
+    
+    private void settings() {
+        Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+        
         startActivity(intent);
     }
 }

@@ -20,15 +20,19 @@ class QuartoGameLogic {
     private GameObject selectedObject = null;
     private boolean selecting = false;
     private boolean placing = false;
-    public QuartoGameLogic() {
+    private boolean AIMove = false;
+    private GameArtificialIntelligence AI;
+    private boolean gameEnd = false;
+    private boolean playerWon = false;
     
+    public QuartoGameLogic() {
+        
         commonHighlights = new boolean[4][4];
         for (int i = 0; i < commonHighlights.length; i++) {
             for (int j = 0; j < commonHighlights[i].length; j++) {
                 commonHighlights[i][j] = false;
             }
         }
-        
         
         for (byte b = 0; b < 16; b++) {
             availableGameObjects.add(new GameObject(b));
@@ -39,6 +43,16 @@ class QuartoGameLogic {
         }
         
         selecting = true;
+        
+        AI = new GameArtificialIntelligence(this);
+    }
+    
+    public boolean isPlayerWon() {
+        return playerWon;
+    }
+    
+    public boolean isGameEnd() {
+        return gameEnd;
     }
     
     public boolean[][] getCommonHighlights() {
@@ -49,28 +63,8 @@ class QuartoGameLogic {
         return gameBoard;
     }
     
-    public boolean isSelecting() {
-        return selecting;
-    }
-    
-    public boolean isPlacing() {
-        return placing;
-    }
-    
     public GameObject getSelectedObject() {
         return selectedObject;
-    }
-    
-    public boolean place(int x, int y) {
-        if (selectedObject == null || gameBoard[y][x] != null) return false;
-        
-        gameBoard[y][x] = selectedObject;
-        selectedObject = null;
-        
-        placing = false;
-        selecting = true;
-        
-        return true;
     }
     
     public boolean setSelectedObject(@NonNull GameObject selectedObject) {
@@ -81,11 +75,31 @@ class QuartoGameLogic {
     
             selecting = false;
             placing = true;
-            
+            AIMove = ! AIMove;
             return true;
         }
         Log.d(TAG, "setSelectedObject unsuccessful");
         return false;
+    }
+    
+    public void AIAction() {
+        if (isAIMove()) {
+            AI.analyzeBoard();
+            AI.place();
+            AI.select();
+        }
+    }
+    
+    public boolean isAIMove() {
+        return AIMove;
+    }
+    
+    public boolean isPlacing() {
+        return placing;
+    }
+    
+    public boolean isSelecting() {
+        return selecting;
     }
     
     public List<GameObject> getAvailableGameObjects() {
@@ -105,7 +119,9 @@ class QuartoGameLogic {
             placing = false;
             selecting = true;
     
-            checkGameBoard();
+            gameEnd = checkGameBoard();
+            if (gameEnd)
+                playerWon = AIMove;
             
             return true;
         }
@@ -116,18 +132,24 @@ class QuartoGameLogic {
         //check rows and cols
         List<GameObject> rows = new ArrayList<>();
         List<GameObject> cols = new ArrayList<>();
+        List<GameObject> firstDiagonale = new ArrayList<>();
+        List<GameObject> secondDiagonale = new ArrayList<>();
         
         boolean foundCommonAttribute = false;
-        
         for (int y = 0; y < 4; y++) {
             rows.clear();
             cols.clear();
+            if (gameBoard[y][y] != null)
+                firstDiagonale.add(gameBoard[y][y]);
             for (int x = 0; x < 4; x++) {
                 if (gameBoard[y][x] != null)
-                    cols.add(gameBoard[y][x]);
-                
-                if (gameBoard[x][y] != null)
-                    rows.add(gameBoard[x][y]);
+                    cols.add(gameBoard[x][y]);
+    
+                if (gameBoard[y][x] != null)
+                    rows.add(gameBoard[y][x]);
+    
+                if (y + x == 3 && gameBoard[y][x] != null)
+                    secondDiagonale.add(gameBoard[y][x]);
             }
             if (rows.size() == 4) {
                 if (hasCommon(rows)) {
@@ -145,23 +167,31 @@ class QuartoGameLogic {
                 }
             }
         }
-        
+    
+        if (firstDiagonale.size() == 4) {
+            if (hasCommon(firstDiagonale)) {
+                Log.d(TAG, "Common attribute found in first diagonale.");
+                foundCommonAttribute = true;
+                highlightFirstDiagonale();
+            }
+        }
+    
+        if (secondDiagonale.size() == 4) {
+            if (hasCommon(secondDiagonale)) {
+                Log.d(TAG, "Common attribute found in second diagonale.");
+                foundCommonAttribute = true;
+                highlightSecondDiagonale();
+            }
+        }
         return foundCommonAttribute;
     }
     
     private boolean hasCommon(@NonNull List<GameObject> args) {
-        boolean valIsSet = false;
-        
-        int result = 0;
-        
+        int commonAttributes = getCommonAttributes(args);
         if (args.size() == 4) {
-            //TODO: This is stupid, but works... So it is not stupid?
-            result = ~ ((args.get(0).getCode() & args.get(1).getCode() & args.get(2).getCode() & args.get(3).getCode()) | (~ args.get(0).getCode() & ~ args.get(1).getCode() & ~ args.get(2).getCode() & ~ args.get(3).getCode()));
-            return result != 0b1111;
+            Log.d(TAG, "Number of common attributes: " + commonAttributes);
+            return commonAttributes != 0;
         }
-        
-        Log.d(TAG, "XOR value: " + result + " Binary: " + Integer.toBinaryString(result));
-        
         return false;
     }
     
@@ -173,5 +203,59 @@ class QuartoGameLogic {
     private void highlightCol(int col) {
         for (int i = 0; i < commonHighlights.length; i++)
             commonHighlights[i][col] = true;
+    }
+    
+    private void highlightFirstDiagonale() {
+        for (int i = 0; i < 4; i++) {
+            commonHighlights[i][i] = true;
+        }
+    }
+    
+    private void highlightSecondDiagonale() {
+        for (int y = 0; y < commonHighlights.length; y++) {
+            for (int x = 0; x < commonHighlights[y].length; x++) {
+                if (y + x == 3)
+                    commonHighlights[y][x] = true;
+            }
+            
+        }
+    }
+    
+    private int getCommonAttributes(@NonNull List<GameObject> args) {
+        if (args.size() < 2) return 0;
+        byte common = 0;
+        byte andResult = 0;
+        byte andNotResult = 0;
+        boolean isSet = false;
+        for (GameObject go : args) {
+            if (go == null) Log.d(TAG, "game object is null!!");
+            if (! isSet) {
+                andResult = go.getCode();
+                andNotResult = (byte) ~ go.getCode();
+                isSet = true;
+            } else {
+                andResult &= go.getCode();
+                andNotResult &= ~ go.getCode();
+            }
+        }
+        common = (byte) (andResult | andNotResult);
+        int count = 0;
+        if ((common & 0b1) != 0) {
+            Log.d(TAG, "Common attribute found: HOLE");
+            count++;
+        }
+        if ((common & 0b10) != 0) {
+            Log.d(TAG, "Common attribute found: SHAPE");
+            count++;
+        }
+        if ((common & 0b100) != 0) {
+            Log.d(TAG, "Common attribute found: COLOR");
+            count++;
+        }
+        if ((common & 0b1000) != 0) {
+            Log.d(TAG, "Common attribute found: SIZE");
+            count++;
+        }
+        return count;
     }
 }

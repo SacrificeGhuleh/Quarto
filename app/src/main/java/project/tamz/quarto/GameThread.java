@@ -14,17 +14,17 @@ class GameThread extends Thread {
     private SurfaceHolder surfaceHolder;
     private GamePanel gamePanel;
     private boolean running;
-
+    
     public GameThread(SurfaceHolder surfaceHolder, GamePanel gamePanel) {
         super();
         this.surfaceHolder = surfaceHolder;
         this.gamePanel = gamePanel;
     }
-
+    
     public void setRunning(boolean running) {
         this.running = running;
     }
-
+    
     @Override
     public void run() {
         long startTime;
@@ -33,7 +33,7 @@ class GameThread extends Thread {
         int frameCunt = 0;
         long totalTime = 0;
         long targetTime = 1000 / FPS_LOCK;
-
+        
         while (this.running) {
             startTime = System.nanoTime();
             canvas = null;
@@ -42,6 +42,7 @@ class GameThread extends Thread {
                 synchronized (surfaceHolder) {
                     this.gamePanel.update();
                     this.gamePanel.draw(canvas);
+                    this.gamePanel.checkGameEnd();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -54,8 +55,7 @@ class GameThread extends Thread {
                     }
                 }
             }
-
-
+            
             timeMillis = (System.nanoTime() - startTime) / 1000000;
             waitTime = targetTime - timeMillis;
             try {
@@ -65,7 +65,7 @@ class GameThread extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+            
             totalTime += System.nanoTime() - startTime;
             frameCunt++;
             if (frameCunt == FPS_LOCK) {
