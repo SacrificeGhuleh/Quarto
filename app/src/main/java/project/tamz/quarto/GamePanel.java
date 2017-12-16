@@ -57,6 +57,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        Log.d(TAG, "surfaceCreated");
         this.thread = new GameThread(getHolder(), this);
         thread.setRunning(true);
         thread.start();
@@ -64,17 +65,22 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-    
+        Log.d(TAG, "surfaceChanged format: " + format + " width " + width + " height " + height);
+        
+        
+        
     }
     
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.d(TAG, "surfaceDestroyed");
         thread.setRunning(false);
         
     }
     
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (! thread.isAlive()) return super.onTouchEvent(event);
         if (quartoGameLogic.isAIMove())
             return super.onTouchEvent(event); //disable input when AI move
         
@@ -156,10 +162,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         float objectRadius = 0.f;
         
         if (placeCoords == null) return false;
-        
-        for (int y = 0; y < placeCoords.size(); y++) {
-            for (int x = 0; x < placeCoords.get(y).size(); x++) {
-                PointF pos = placeCoords.get(y).get(x);
+    
+        for (int row = 0; row < placeCoords.size(); row++) {
+            for (int col = 0; col < placeCoords.get(row).size(); col++) {
+                PointF pos = placeCoords.get(row).get(col);
                 if (pos != null) {
                     dx = pos.x - clickedPos.x;
                     dy = pos.y - clickedPos.y;
@@ -171,7 +177,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         Log.d(TAG, "Collision");
                         
                         if (coords == null) {
-                            coords = new Point(y, x);
+                            coords = new Point(row, col);
                         } else {
                             PointF prevPos = placeCoords.get(coords.y).get(coords.x);
                             
@@ -180,7 +186,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                             float prevDistance = (float) Math.sqrt(prevDx * prevDx + prevDy * prevDy);
                             
                             if (prevDistance > distance) {
-                                coords = new Point(y, x);
+                                coords = new Point(row, col);
                             }
                         }
                     }
@@ -195,26 +201,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         return quartoGameLogic.place(coords);
     }
     
-    public void checkGameEnd() {
+    public void checkGameEnd(Canvas canvas) {
         if (quartoGameLogic.isGameEnd()) {
-            //gameActivity.endOfGame(quartoGameLogic.isPlayerWon());
+            Log.d("Game panel", "End of game");
+            Log.d("Game panel", "Player won: " + quartoGameLogic.isPlayerWon());
+    
+            gameBoard.setHighLights(quartoGameLogic.getCommonHighlights());
+            draw(canvas);
+            gameActivity.endOfGame(canvas);
+    
             thread.setRunning(false);
         }
-    }
-    
-    public void update() {
-        if (quartoGameLogic.isAIMove())
-            quartoGameLogic.AIAction();
-    
-        if (gameActivity != null)
-            gameActivity.editElapsedTime(getElapsed());
-        ganeStatusBar.update();
-        gameBoard.setHighLights(quartoGameLogic.getCommonHighlights());
-    
-    }
-    
-    private Time getElapsed() {
-        return ganeStatusBar.getGameTime();
     }
     
     @Override
@@ -246,16 +243,24 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         List<List<PointF>> availablePlaces = gameAvailableBoard.getAvailablePositions();
     
         int availableCunt = availableObjects.size();
-        
-        int i = 0;
-        mainFor:
-        for (int y = 0; y < availablePlaces.size(); y++) {
-            for (int x = 0; x < availablePlaces.get(y).size(); x++) {
-                if (i >= availableCunt) break mainFor;
-                availableObjects.get(i).setPosition(availablePlaces.get(y).get(x));
-                availableObjects.get(i).setBoardSphereSize(radius);
-                availableObjects.get(i).draw(canvas);
-                i++;
+    
+        int index = 0;
+        for (int row = 0; row < availablePlaces.size(); row++) {
+            for (int col = 0; col < availablePlaces.get(row).size(); col++) {
+                if (index >= availableCunt) return;
+                GameObject go = availableObjects.get(index);
+                if (go == null) {
+                    Log.d(TAG, "Warning, Game object in drawAvailableObjects is null");
+                
+                }
+                PointF pos = availablePlaces.get(row).get(col);
+                if (pos == null) {
+                    Log.d(TAG, "Warning, position in drawAvailableObjects is null");
+                }
+                go.setPosition(pos);
+                go.setBoardSphereSize(radius);
+                go.draw(canvas);
+                index++;
             }
         }
     }
@@ -264,16 +269,33 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         GameObject objects[][] = quartoGameLogic.getPlacedObjects();
         if (objects == null) return;
         float radius = gameBoard.getSmallCirclesRadius();
-        for (int y = 0; y < objects.length; y++) {
-            for (int x = 0; x < objects[y].length; x++) {
-                GameObject o = objects[y][x];
+        for (int row = 0; row < objects.length; row++) {
+            for (int col = 0; col < objects[row].length; col++) {
+                GameObject o = objects[row][col];
                 if (o == null) continue;
-    
-                o.setPosition(gameBoard.getSmallCircles().get(y).get(x));
+                
+                o.setPosition(gameBoard.getSmallCircles().get(row).get(col));
                 o.setBoardSphereSize(radius);
                 o.draw(canvas);
             }
         }
         
+    }
+    
+    public void update() {
+        if (quartoGameLogic.isAIMove())
+            quartoGameLogic.AIAction();
+        
+        if (gameActivity != null)
+            gameActivity.editElapsedTime(getElapsed());
+        
+        ganeStatusBar.update();
+        
+        gameBoard.setHighLights(quartoGameLogic.getCommonHighlights());
+        
+    }
+    
+    private Time getElapsed() {
+        return ganeStatusBar.getGameTime();
     }
 }

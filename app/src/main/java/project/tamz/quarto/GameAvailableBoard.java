@@ -97,14 +97,12 @@ public class GameAvailableBoard implements GameEntity {
         selectedPos = new PointF(cellWidth * 6.f, background.top + cellWidth * 1.f);
         
         availablePositions = new ArrayList<>(3);
-        for (int i = 0; i < 3; i++) {
-            availablePositions.add(new ArrayList<PointF>(6));
-        }
     
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 6; x++) {
-                if (y >= 2 && x >= 4) break; //Only 2 cells on 3rd row
-                availablePositions.get(y).add(new PointF(cellWidth * (x + 1), background.top + cellWidth * (y + 2)));
+        for (int row = 0; row < 3; row++) {
+            availablePositions.add(new ArrayList<PointF>(6));
+            for (int col = 0; col < 6; col++) {
+                if (row >= 2 && col >= 4) break; //Only 2 cells on 3rd row
+                availablePositions.get(row).add(new PointF(cellWidth * (col + 1), background.top + cellWidth * (row + 2)));
             }
         }
         

@@ -42,7 +42,7 @@ class GameThread extends Thread {
                 synchronized (surfaceHolder) {
                     this.gamePanel.update();
                     this.gamePanel.draw(canvas);
-                    this.gamePanel.checkGameEnd();
+                    this.gamePanel.checkGameEnd(canvas);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

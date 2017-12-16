@@ -30,6 +30,22 @@ public class GameObject implements GameEntity {
         this.code = code;
     }
     
+    public static GameObject[][] clone(GameObject[][] in) {
+        GameObject[][] out = new GameObject[in.length][];
+        
+        for (int i = 0; i < in.length; i++) {
+            out[i] = new GameObject[in[i].length];
+        }
+        
+        for (int row = 0; row < in.length; row++) {
+            for (int col = 0; col < in[row].length; col++) {
+                out[row][col] = in[row][col];
+            }
+        }
+        
+        return out;
+    }
+    
     public float getBoardSphereSize() {
         return boardSphereSize;
     }
@@ -41,14 +57,14 @@ public class GameObject implements GameEntity {
     public PointF getPosition() {
         return position;
     }
-    
-    public void setPosition(PointF position) {
-        this.position = position;
-    }
 
     /*public GameObject() {
         super();
     }*/
+    
+    public void setPosition(PointF position) {
+        this.position = position;
+    }
     
     public boolean isTall() {
         return tall;
@@ -56,6 +72,10 @@ public class GameObject implements GameEntity {
     
     public boolean isBlack() {
         return black;
+    }
+    
+    public boolean isSquare() {
+        return square;
     }
     
     public byte getCode() {
@@ -70,10 +90,6 @@ public class GameObject implements GameEntity {
         this.square = square;
         this.hole = hole;
     }*/
-    
-    public boolean isSquare() {
-        return square;
-    }
     
     public boolean isHole() {
         return hole;
@@ -141,7 +157,7 @@ public class GameObject implements GameEntity {
     
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        return new GameObject(this.code);
     }
     
     @Override

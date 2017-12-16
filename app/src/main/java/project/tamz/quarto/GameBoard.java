@@ -37,9 +37,9 @@ public class GameBoard implements GameEntity {
         super();
     
         highLights = new boolean[4][4];
-        for (int i = 0; i < highLights.length; i++) {
-            for (int j = 0; j < highLights[i].length; j++) {
-                highLights[i][j] = false;
+        for (int row = 0; row < highLights.length; row++) {
+            for (int col = 0; col < highLights[row].length; col++) {
+                highLights[row][col] = false;
             }
         }
     }
@@ -86,15 +86,15 @@ public class GameBoard implements GameEntity {
         canvas.drawRect(gameBoardBackground, gameBoardBackgroundPaint);
         canvas.drawCircle(center.x, center.y, mainCircleRadius, outline);
         PointF centerOfHelperSubrects;
-        for (int y = 0; y < 4; y++) {
-            for (int x = 0; x < 4; x++) {
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
                 Paint currPaint;
-                if (highLights[y][x])
+                if (highLights[row][col])
                     currPaint = highlightOutline;
                 else
                     currPaint = outline;
-                
-                centerOfHelperSubrects = smallCircles.get(y).get(x);
+            
+                centerOfHelperSubrects = smallCircles.get(row).get(col);
                 canvas.drawCircle(
                         centerOfHelperSubrects.x,
                         centerOfHelperSubrects.y,
@@ -139,14 +139,13 @@ public class GameBoard implements GameEntity {
                 center.x + helperRectSize / 2.f,
                 center.y + helperRectSize / 2.f);
         smallCirclesRadius = (helperRectSize / 4.f) / 2.f;
-        
-        PointF centerOfHelperSubrects = new PointF();
-        for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 4; y++) {
-                smallCircles.get(y).add(
+    
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                smallCircles.get(col).add(
                         new PointF(
-                                helperRect.left + smallCirclesRadius + x * smallCirclesRadius * 2.f,
-                                helperRect.top + smallCirclesRadius + y * smallCirclesRadius * 2.f
+                                helperRect.left + smallCirclesRadius + row * smallCirclesRadius * 2.f,
+                                helperRect.top + smallCirclesRadius + col * smallCirclesRadius * 2.f
                         ));
             }
         }

@@ -7,8 +7,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.content.ContentValues.TAG;
-
 /**
  * Created by Richard Zvonek on 03/12/2017.
  */
@@ -28,9 +26,9 @@ class QuartoGameLogic {
     public QuartoGameLogic() {
         
         commonHighlights = new boolean[4][4];
-        for (int i = 0; i < commonHighlights.length; i++) {
-            for (int j = 0; j < commonHighlights[i].length; j++) {
-                commonHighlights[i][j] = false;
+        for (int row = 0; row < commonHighlights.length; row++) {
+            for (int col = 0; col < commonHighlights[row].length; col++) {
+                commonHighlights[row][col] = false;
             }
         }
         
@@ -47,12 +45,165 @@ class QuartoGameLogic {
         AI = new GameArtificialIntelligence(this);
     }
     
+    public int getPlacedCount() {
+        int placedNum = 0;
+        
+        for (GameObject g[] : gameBoard) {
+            for (GameObject go : g) {
+                if (go != null) placedNum++;
+            }
+        }
+        
+        return placedNum;
+    }
+    
+    public void printBoard() {
+        
+        for (int row = 0; row < 4; row++) {
+            String s = "";
+            for (int col = 0; col < 4; col++) {
+                if (gameBoard[row][col] == null) s += "  ";
+                else s += "x ";
+            }
+            Log.d("Game board:", s);
+        }
+    }
+    
     public boolean isPlayerWon() {
         return playerWon;
     }
     
     public boolean isGameEnd() {
-        return gameEnd;
+        return checkGameBoard();
+    }
+    
+    private boolean checkGameBoard() {
+        List<GameObject> rows = new ArrayList<>();
+        List<GameObject> cols = new ArrayList<>();
+        List<GameObject> firstDiagonal = new ArrayList<>();
+        List<GameObject> secondDiagonal = new ArrayList<>();
+        
+        boolean foundCommonAttribute = false;
+        for (int row = 0; row < 4; row++) {
+            rows.clear();
+            cols.clear();
+            if (gameBoard[row][row] != null)
+                firstDiagonal.add(gameBoard[row][row]);
+            for (int col = 0; col < 4; col++) {
+                if (gameBoard[row][col] != null)
+                    cols.add(gameBoard[col][row]);
+            
+                if (gameBoard[row][col] != null)
+                    rows.add(gameBoard[row][col]);
+            
+                if (row + col == 3 && gameBoard[row][col] != null)
+                    secondDiagonal.add(gameBoard[row][col]);
+            }
+            if (rows.size() == 4) {
+                if (hasCommon(rows)) {
+                    Log.d("Game Logic:", "Common attribute found in row " + row);
+                    foundCommonAttribute = true;
+                    highlightRow(row);
+                }
+            }
+            
+            if (cols.size() == 4) {
+                if (hasCommon(cols)) {
+                    Log.d("Game Logic:", "Common attribute found in column " + row);
+                    foundCommonAttribute = true;
+                    highlightCol(row);
+                }
+            }
+        }
+    
+        if (firstDiagonal.size() == 4) {
+            if (hasCommon(firstDiagonal)) {
+                Log.d("Game Logic:", "Common attribute found in first diagonale.");
+                foundCommonAttribute = true;
+                highlightFirstDiagonale();
+            }
+        }
+    
+        if (secondDiagonal.size() == 4) {
+            if (hasCommon(secondDiagonal)) {
+                Log.d("Game Logic:", "Common attribute found in second diagonale.");
+                foundCommonAttribute = true;
+                highlightSecondDiagonale();
+            }
+        }
+        return foundCommonAttribute;
+    }
+    
+    public static boolean hasCommon(@NonNull List<GameObject> args) {
+        int commonAttributes = getCommonAttributes(args);
+        if (args.size() == 4) {
+            Log.d("Game Logic:", "Number of common attributes: " + commonAttributes);
+            return commonAttributes != 0;
+        }
+        return false;
+    }
+    
+    private void highlightRow(int row) {
+        for (int col = 0; col < commonHighlights[row].length; col++)
+            commonHighlights[row][col] = true;
+    }
+    
+    private void highlightCol(int col) {
+        for (int row = 0; row < commonHighlights.length; row++)
+            commonHighlights[row][col] = true;
+    }
+    
+    private void highlightFirstDiagonale() {
+        for (int rowcol = 0; rowcol < 4; rowcol++) {
+            commonHighlights[rowcol][rowcol] = true;
+        }
+    }
+    
+    private void highlightSecondDiagonale() {
+        for (int row = 0; row < commonHighlights.length; row++) {
+            for (int col = 0; col < commonHighlights[row].length; col++) {
+                if (row + col == 3)
+                    commonHighlights[row][col] = true;
+            }
+        }
+    }
+    
+    public static int getCommonAttributes(@NonNull List<GameObject> args) {
+        if (args.size() < 2) return 0;
+        byte common = 0;
+        byte andResult = 0;
+        byte andNotResult = 0;
+        boolean isSet = false;
+        for (GameObject go : args) {
+            if (go == null) return 0;
+            if (! isSet) {
+                andResult = go.getCode();
+                andNotResult = (byte) ~ go.getCode();
+                isSet = true;
+            } else {
+                andResult &= go.getCode();
+                andNotResult &= ~ go.getCode();
+            }
+        }
+        common = (byte) (andResult | andNotResult);
+        int count = 0;
+        if ((common & 0b1) != 0) {
+            Log.d("Game Logic:", "Common attribute found: HOLE");
+            count++;
+        }
+        if ((common & 0b10) != 0) {
+            Log.d("Game Logic:", "Common attribute found: SHAPE");
+            count++;
+        }
+        if ((common & 0b100) != 0) {
+            Log.d("Game Logic:", "Common attribute found: COLOR");
+            count++;
+        }
+        if ((common & 0b1000) != 0) {
+            Log.d("Game Logic:", "Common attribute found: SIZE");
+            count++;
+        }
+        return count;
     }
     
     public boolean[][] getCommonHighlights() {
@@ -71,14 +222,14 @@ class QuartoGameLogic {
         if (availableGameObjects.contains(selectedObject)) {
             availableGameObjects.remove(selectedObject);
             this.selectedObject = selectedObject;
-            Log.d(TAG, "Found selected object");
-    
+            Log.d("Game Logic:", "Found selected object");
+            
             selecting = false;
             placing = true;
             AIMove = ! AIMove;
             return true;
         }
-        Log.d(TAG, "setSelectedObject unsuccessful");
+        Log.d("Game Logic:", "setSelectedObject unsuccessful");
         return false;
     }
     
@@ -118,7 +269,7 @@ class QuartoGameLogic {
             
             placing = false;
             selecting = true;
-    
+            
             gameEnd = checkGameBoard();
             if (gameEnd)
                 playerWon = AIMove;
@@ -126,136 +277,5 @@ class QuartoGameLogic {
             return true;
         }
         return false;
-    }
-    
-    private boolean checkGameBoard() {
-        //check rows and cols
-        List<GameObject> rows = new ArrayList<>();
-        List<GameObject> cols = new ArrayList<>();
-        List<GameObject> firstDiagonale = new ArrayList<>();
-        List<GameObject> secondDiagonale = new ArrayList<>();
-        
-        boolean foundCommonAttribute = false;
-        for (int y = 0; y < 4; y++) {
-            rows.clear();
-            cols.clear();
-            if (gameBoard[y][y] != null)
-                firstDiagonale.add(gameBoard[y][y]);
-            for (int x = 0; x < 4; x++) {
-                if (gameBoard[y][x] != null)
-                    cols.add(gameBoard[x][y]);
-    
-                if (gameBoard[y][x] != null)
-                    rows.add(gameBoard[y][x]);
-    
-                if (y + x == 3 && gameBoard[y][x] != null)
-                    secondDiagonale.add(gameBoard[y][x]);
-            }
-            if (rows.size() == 4) {
-                if (hasCommon(rows)) {
-                    Log.d(TAG, "Common attribute found in row " + y);
-                    foundCommonAttribute = true;
-                    highlightRow(y);
-                }
-            }
-            
-            if (cols.size() == 4) {
-                if (hasCommon(cols)) {
-                    Log.d(TAG, "Common attribute found in column " + y);
-                    foundCommonAttribute = true;
-                    highlightCol(y);
-                }
-            }
-        }
-    
-        if (firstDiagonale.size() == 4) {
-            if (hasCommon(firstDiagonale)) {
-                Log.d(TAG, "Common attribute found in first diagonale.");
-                foundCommonAttribute = true;
-                highlightFirstDiagonale();
-            }
-        }
-    
-        if (secondDiagonale.size() == 4) {
-            if (hasCommon(secondDiagonale)) {
-                Log.d(TAG, "Common attribute found in second diagonale.");
-                foundCommonAttribute = true;
-                highlightSecondDiagonale();
-            }
-        }
-        return foundCommonAttribute;
-    }
-    
-    private boolean hasCommon(@NonNull List<GameObject> args) {
-        int commonAttributes = getCommonAttributes(args);
-        if (args.size() == 4) {
-            Log.d(TAG, "Number of common attributes: " + commonAttributes);
-            return commonAttributes != 0;
-        }
-        return false;
-    }
-    
-    private void highlightRow(int row) {
-        for (int i = 0; i < commonHighlights[row].length; i++)
-            commonHighlights[row][i] = true;
-    }
-    
-    private void highlightCol(int col) {
-        for (int i = 0; i < commonHighlights.length; i++)
-            commonHighlights[i][col] = true;
-    }
-    
-    private void highlightFirstDiagonale() {
-        for (int i = 0; i < 4; i++) {
-            commonHighlights[i][i] = true;
-        }
-    }
-    
-    private void highlightSecondDiagonale() {
-        for (int y = 0; y < commonHighlights.length; y++) {
-            for (int x = 0; x < commonHighlights[y].length; x++) {
-                if (y + x == 3)
-                    commonHighlights[y][x] = true;
-            }
-            
-        }
-    }
-    
-    private int getCommonAttributes(@NonNull List<GameObject> args) {
-        if (args.size() < 2) return 0;
-        byte common = 0;
-        byte andResult = 0;
-        byte andNotResult = 0;
-        boolean isSet = false;
-        for (GameObject go : args) {
-            if (go == null) Log.d(TAG, "game object is null!!");
-            if (! isSet) {
-                andResult = go.getCode();
-                andNotResult = (byte) ~ go.getCode();
-                isSet = true;
-            } else {
-                andResult &= go.getCode();
-                andNotResult &= ~ go.getCode();
-            }
-        }
-        common = (byte) (andResult | andNotResult);
-        int count = 0;
-        if ((common & 0b1) != 0) {
-            Log.d(TAG, "Common attribute found: HOLE");
-            count++;
-        }
-        if ((common & 0b10) != 0) {
-            Log.d(TAG, "Common attribute found: SHAPE");
-            count++;
-        }
-        if ((common & 0b100) != 0) {
-            Log.d(TAG, "Common attribute found: COLOR");
-            count++;
-        }
-        if ((common & 0b1000) != 0) {
-            Log.d(TAG, "Common attribute found: SIZE");
-            count++;
-        }
-        return count;
     }
 }

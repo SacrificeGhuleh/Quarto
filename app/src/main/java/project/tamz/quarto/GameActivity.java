@@ -1,12 +1,17 @@
 package project.tamz.quarto;
 
 import android.app.Activity;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import static android.content.ContentValues.TAG;
 
 public class GameActivity extends Activity {
     
@@ -15,6 +20,7 @@ public class GameActivity extends Activity {
     private TextView gameStatus;
     private ConstraintLayout statusBarLayout;
     private ConstraintLayout gameWonLayout;
+    private ImageView imageView;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,16 +38,20 @@ public class GameActivity extends Activity {
         this.panel.addGameActivity(this);
         this.gameStatus = findViewById(R.id.gameStatusTextView);
         this.gameWonLayout = findViewById(R.id.endOfGameLayout);
+    
+        this.imageView = findViewById(R.id.imageView);
     }
     
-    public void endOfGame(final boolean gameWon) {
+    public void endOfGame(final Canvas canvas) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                
                 try {
+                    Log.d(TAG, "Canvas size: width " + canvas.getWidth() + " height " + canvas.getHeight());
+                    int width = canvas.getWidth();
+                    
                     gameWonLayout.setVisibility(View.VISIBLE);
-                    if (gameWon) {
+                    if (true) {
                         gameStatus.setText("GAME WON");
                     } else {
                         gameStatus.setText("GAME LOST");
