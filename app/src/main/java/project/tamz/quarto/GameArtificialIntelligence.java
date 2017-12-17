@@ -30,8 +30,10 @@ public class GameArtificialIntelligence {
     
     public void analyzeBoard() {
         if (game == null) return;
-        getToPlace();
-        getToSelect();
+        //getToPlace();
+        //getToSelect();
+    
+        analyzeBoardAlphabeta(5);
         
         /*
         getToPlaceRandom();
@@ -97,69 +99,6 @@ public class GameArtificialIntelligence {
                 result = getToSelectRandom();
         }
         return result;
-    }
-    
-    private boolean getToPlaceRandom() {
-        if (game == null) return false;
-        
-        List<Point> available = new ArrayList<>();
-        
-        GameObject placed[][] = game.getPlacedObjects();
-        
-        for (int row = 0; row < placed.length; row++) {
-            for (int col = 0; col < placed[row].length; col++) {
-                if (placed[row][col] == null) available.add(new Point(row, col));
-            }
-        }
-        
-        game.printBoard();
-        Log.d("AI", "getToPlaceRandom: ");
-        Log.d("AI", "AI: available to place: " + available.toString());
-        /*
-        * Random choosing
-        * */
-        int availableCount = available.size();
-        if (availableCount > 0) {
-            if (availableCount == 1) {
-                toPlace = available.get(0);
-                return true;
-            }
-            int min = 0;
-            int max = availableCount;
-            
-            int rand = ThreadLocalRandom.current().nextInt(min, max);
-            toPlace = available.get(rand);
-            Log.d("AI", "AI: to place: " + toPlace);
-            return true;
-        }
-        return false;
-    }
-    
-    private boolean getToPlaceBeginner() {
-        Log.d("AI", "Placing as beginner ");
-        if (game == null) return false;
-        
-        List<Point> available = new ArrayList<>();
-        
-        GameObject selected = game.getSelectedObject();
-        final GameObject placed[][] = game.getPlacedObjects();
-        
-        for (int row = 0; row < placed.length; row++) {
-            for (int col = 0; col < placed[row].length; col++) {
-                if (placed[row][col] == null) available.add(new Point(row, col));
-            }
-        }
-        GameObject[][] placedCopy;
-        for (Point p : available) {
-            placedCopy = GameObject.clone(placed);
-            placedCopy[p.x][p.y] = selected;
-            if (checkBoard(placedCopy)) {
-                toPlace = p;
-                return true;
-            }
-            placedCopy = null;
-        }
-        return false;
     }
     
     private boolean getToSelectRandom() {
@@ -288,6 +227,88 @@ public class GameArtificialIntelligence {
         return false;
     }
     
+    private boolean getToPlaceRandom() {
+        if (game == null) return false;
+        
+        /*List<Point> available = new ArrayList<>();
+        
+        GameObject placed[][] = game.getPlacedObjects();
+        
+        for (int row = 0; row < placed.length; row++) {
+            for (int col = 0; col < placed[row].length; col++) {
+                if (placed[row][col] == null) available.add(new Point(row, col));
+            }
+        }*/
+        
+        List<Point> available = getAvailablePlaces(game.getPlacedObjects());
+        
+        game.printBoard();
+        Log.d("AI", "getToPlaceRandom: ");
+        Log.d("AI", "AI: available to place: " + available.toString());
+        /*
+        * Random choosing
+        * */
+        int availableCount = available.size();
+        if (availableCount > 0) {
+            if (availableCount == 1) {
+                toPlace = available.get(0);
+                return true;
+            }
+            int min = 0;
+            int max = availableCount;
+            
+            int rand = ThreadLocalRandom.current().nextInt(min, max);
+            toPlace = available.get(rand);
+            Log.d("AI", "AI: to place: " + toPlace);
+            return true;
+        }
+        return false;
+    }
+    
+    private boolean getToPlaceBeginner() {
+        Log.d("AI", "Placing as beginner ");
+        if (game == null) return false;
+        //List<Point> available = new ArrayList<>();
+        GameObject selected = game.getSelectedObject();
+        final GameObject placed[][] = game.getPlacedObjects();
+        /*
+        for (int row = 0; row < placed.length; row++) {
+            for (int col = 0; col < placed[row].length; col++) {
+                if (placed[row][col] == null) available.add(new Point(row, col));
+            }
+        }*/
+        List<Point> available = getAvailablePlaces(game.getPlacedObjects());
+        GameObject[][] placedCopy;
+        for (Point p : available) {
+            placedCopy = GameObject.clone(placed);
+            placedCopy[p.x][p.y] = selected;
+            if (checkBoard(placedCopy)) {
+                toPlace = p;
+                return true;
+            }
+            placedCopy = null;
+        }
+        return false;
+    }
+    
+    private List<Point> getAvailablePlaces(GameObject[][] board) {
+        List<Point> available = new ArrayList<>();
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                if (board[row][col] == null) available.add(new Point(row, col));
+            }
+        }
+        return available;
+    }
+    
+    private void analyzeBoardAlphabeta(int depth) {
+        AlphaBetaResult result = alphabeta(game.getPlacedObjects(), game.getSelectedObject(), game.getAvailableGameObjects(), depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        
+        toSelect = result.piece;
+        toPlace = result.field;
+        
+    }
+    
     public boolean place() {
         if (toPlace != null) {
             if (! game.place(toPlace)) {
@@ -307,4 +328,135 @@ public class GameArtificialIntelligence {
         return false;
     }
     
+    public AlphaBetaResult alphabeta(GameObject[][] board, GameObject piece, List<GameObject> availablePieces, int depth, int alpha, int beta, boolean maximize) {
+        AlphaBetaResult bestMove = new AlphaBetaResult();
+        
+        if (checkBoard(board)) { // check victory
+            bestMove.score = maximize ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+            return bestMove;
+        }
+        
+        if (availablePieces.isEmpty()) {
+            bestMove.score = (maximize ? - 1 : 1) * lastPieceState(board, piece);
+            return bestMove;
+        }
+        
+        if (depth == 0) { // leaf node, evaluate
+            bestMove.score = (maximize ? - 1 : 1) * evalGameState(board, piece);
+            return bestMove;
+        }
+        
+        //Point possibleField;
+        GameObject[][] possibleBoard;
+        List<GameObject> possibleAvailablePieces;
+        
+        for (Point possibleField : getAvailablePlaces(board)) {
+            for (GameObject possiblePiece : availablePieces) {
+                possibleBoard = GameObject.clone(board);//board.clone();
+                if (possibleBoard[possibleField.y][possibleField.x] == null)
+                    possibleBoard[possibleField.y][possibleField.x] = possiblePiece;
+                possibleAvailablePieces = new ArrayList<>(availablePieces);//.clone();
+                possibleAvailablePieces.remove(possiblePiece);
+                if (maximize) {
+                    AlphaBetaResult result = alphabeta(possibleBoard, possiblePiece, possibleAvailablePieces, depth - 1, alpha, beta, false);
+                    
+                    if (result.score > alpha) {
+                        alpha = result.score;
+                        bestMove.field = possibleField;
+                        bestMove.piece = possiblePiece;
+                    }
+                    
+                    if (alpha >= beta) { // prune
+                        break;
+                    }
+                } else {
+                    AlphaBetaResult result = alphabeta(possibleBoard, possiblePiece, possibleAvailablePieces, depth - 1, alpha, beta, true);
+                    
+                    if (result.score < beta) {
+                        beta = result.score;
+                        bestMove.field = possibleField;
+                        bestMove.piece = possiblePiece;
+                    }
+                    
+                    if (alpha >= beta) { // prune
+                        break;
+                    }
+                }
+            }
+            if (alpha >= beta) { // prune
+                break;
+            }
+        }
+        bestMove.score = maximize ? alpha : beta;
+        return bestMove;
+    }
+    
+    private int lastPieceState(GameObject[][] board, GameObject piece) {
+        try {
+            List<Point> availablePlaces = getAvailablePlaces(board);
+            Point p = availablePlaces.get(0);
+            board[p.y][p.x] = piece;
+            return checkBoard(board) ? Integer.MIN_VALUE : 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    private int evalGameState(GameObject[][] board, GameObject piece) {
+        int score = 0;
+        score += remainingPiecesScore(board, piece);
+        return score;
+    }
+    
+    private int remainingPiecesScore(GameObject[][] board, GameObject piece) {
+        //todo
+        
+        GameObject[][] possibleBoard = null;
+        int remaining = 0;
+        
+        /*
+        static Board *possibleBoard = NULL;
+        static unsigned remaining = 0;
+        
+        if (! board -> hasSameMatrix(possibleBoard)) {
+            if (possibleBoard != NULL)
+                delete possibleBoard;
+            possibleBoard = new Board( * board);
+            
+            possibleBoard -> addPieceToStock(piece);
+            Piece * chosenPiece;
+            
+            remaining = possibleBoard -> getStock().size();
+            
+            foreach(chosenPiece, possibleBoard -> getStock()) {
+                QPair<unsigned, unsigned> possibleField;
+                
+                foreach(possibleField, possibleBoard -> getFreeFields()) {
+                    possibleBoard -> putPiece(possibleField, chosenPiece);
+                    
+                    bool victory = possibleBoard -> checkVictory();
+                    
+                    possibleBoard -> deletePiece(possibleField);
+                    
+                    if (victory) {
+                        remaining--;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return (remaining % 2) ? (PLUS_INF - remaining) : (MINUS_INF + remaining);
+        */
+        
+        return 0;
+    }
+    
+    static class AlphaBetaResult {
+        int score;
+        GameObject piece;
+        Point field;
+        
+    }
 }
