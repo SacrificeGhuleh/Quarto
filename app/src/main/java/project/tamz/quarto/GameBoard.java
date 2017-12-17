@@ -93,7 +93,7 @@ public class GameBoard implements GameEntity {
                     currPaint = highlightOutline;
                 else
                     currPaint = outline;
-            
+    
                 centerOfHelperSubrects = smallCircles.get(row).get(col);
                 canvas.drawCircle(
                         centerOfHelperSubrects.x,

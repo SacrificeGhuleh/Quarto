@@ -67,8 +67,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         Log.d(TAG, "surfaceChanged format: " + format + " width " + width + " height " + height);
         
-        
-        
     }
     
     @Override
@@ -204,12 +202,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public void checkGameEnd(Canvas canvas) {
         if (quartoGameLogic.isGameEnd()) {
             Log.d("Game panel", "End of game");
-            Log.d("Game panel", "Player won: " + quartoGameLogic.isPlayerWon());
-    
+            Log.d("Game panel", "Player won: " + quartoGameLogic.isAIWon());
+            
             gameBoard.setHighLights(quartoGameLogic.getCommonHighlights());
             draw(canvas);
             gameActivity.endOfGame(canvas);
-    
+            drawGameEndPanel(canvas);
             thread.setRunning(false);
         }
     }
@@ -224,7 +222,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         drawSelectedObject(canvas);
         drawAvailableObjects(canvas);
         drawPlacedObjects(canvas);
+    }
+    
+    public void drawGameEndPanel(Canvas canvas) {
+        GameEndInfo gameEndInfo = new GameEndInfo(quartoGameLogic.getGameEndType());
         
+        gameEndInfo.draw(canvas);
     }
     
     public void drawSelectedObject(Canvas canvas) {
@@ -251,7 +254,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 GameObject go = availableObjects.get(index);
                 if (go == null) {
                     Log.d(TAG, "Warning, Game object in drawAvailableObjects is null");
-                
+    
                 }
                 PointF pos = availablePlaces.get(row).get(col);
                 if (pos == null) {

@@ -30,10 +30,10 @@ public class GameArtificialIntelligence {
     
     public void analyzeBoard() {
         if (game == null) return;
-        //getToPlace();
-        //getToSelect();
+        getToPlace();
+        getToSelect();
     
-        analyzeBoardAlphabeta(5);
+        //analyzeBoardAlphabeta(5);
         
         /*
         getToPlaceRandom();
@@ -99,6 +99,70 @@ public class GameArtificialIntelligence {
                 result = getToSelectRandom();
         }
         return result;
+    }
+    
+    private boolean getToPlaceRandom() {
+        if (game == null) return false;
+        
+        /*List<Point> available = new ArrayList<>();
+        
+        GameObject placed[][] = game.getPlacedObjects();
+        
+        for (int row = 0; row < placed.length; row++) {
+            for (int col = 0; col < placed[row].length; col++) {
+                if (placed[row][col] == null) available.add(new Point(row, col));
+            }
+        }*/
+        
+        List<Point> available = getAvailablePlaces(game.getPlacedObjects());
+        
+        game.printBoard();
+        Log.d("AI", "getToPlaceRandom: ");
+        Log.d("AI", "AI: available to place: " + available.toString());
+        /*
+        * Random choosing
+        * */
+        int availableCount = available.size();
+        if (availableCount > 0) {
+            if (availableCount == 1) {
+                toPlace = available.get(0);
+                return true;
+            }
+            int min = 0;
+            int max = availableCount;
+            
+            int rand = ThreadLocalRandom.current().nextInt(min, max);
+            toPlace = available.get(rand);
+            Log.d("AI", "AI: to place: " + toPlace);
+            return true;
+        }
+        return false;
+    }
+    
+    private boolean getToPlaceBeginner() {
+        Log.d("AI", "Placing as beginner ");
+        if (game == null) return false;
+        //List<Point> available = new ArrayList<>();
+        GameObject selected = game.getSelectedObject();
+        final GameObject placed[][] = game.getPlacedObjects();
+        /*
+        for (int row = 0; row < placed.length; row++) {
+            for (int col = 0; col < placed[row].length; col++) {
+                if (placed[row][col] == null) available.add(new Point(row, col));
+            }
+        }*/
+        List<Point> available = getAvailablePlaces(game.getPlacedObjects());
+        GameObject[][] placedCopy;
+        for (Point p : available) {
+            placedCopy = GameObject.clone(placed);
+            placedCopy[p.x][p.y] = selected;
+            if (checkBoard(placedCopy)) {
+                toPlace = p;
+                return true;
+            }
+            placedCopy = null;
+        }
+        return false;
     }
     
     private boolean getToSelectRandom() {
@@ -173,6 +237,16 @@ public class GameArtificialIntelligence {
         return false;
     }
     
+    private List<Point> getAvailablePlaces(GameObject[][] board) {
+        List<Point> available = new ArrayList<>();
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                if (board[row][col] == null) available.add(new Point(row, col));
+            }
+        }
+        return available;
+    }
+    
     private boolean checkBoard(GameObject[][] board) {
         
         List<GameObject> rows = new ArrayList<>();
@@ -225,80 +299,6 @@ public class GameArtificialIntelligence {
         }
         
         return false;
-    }
-    
-    private boolean getToPlaceRandom() {
-        if (game == null) return false;
-        
-        /*List<Point> available = new ArrayList<>();
-        
-        GameObject placed[][] = game.getPlacedObjects();
-        
-        for (int row = 0; row < placed.length; row++) {
-            for (int col = 0; col < placed[row].length; col++) {
-                if (placed[row][col] == null) available.add(new Point(row, col));
-            }
-        }*/
-        
-        List<Point> available = getAvailablePlaces(game.getPlacedObjects());
-        
-        game.printBoard();
-        Log.d("AI", "getToPlaceRandom: ");
-        Log.d("AI", "AI: available to place: " + available.toString());
-        /*
-        * Random choosing
-        * */
-        int availableCount = available.size();
-        if (availableCount > 0) {
-            if (availableCount == 1) {
-                toPlace = available.get(0);
-                return true;
-            }
-            int min = 0;
-            int max = availableCount;
-            
-            int rand = ThreadLocalRandom.current().nextInt(min, max);
-            toPlace = available.get(rand);
-            Log.d("AI", "AI: to place: " + toPlace);
-            return true;
-        }
-        return false;
-    }
-    
-    private boolean getToPlaceBeginner() {
-        Log.d("AI", "Placing as beginner ");
-        if (game == null) return false;
-        //List<Point> available = new ArrayList<>();
-        GameObject selected = game.getSelectedObject();
-        final GameObject placed[][] = game.getPlacedObjects();
-        /*
-        for (int row = 0; row < placed.length; row++) {
-            for (int col = 0; col < placed[row].length; col++) {
-                if (placed[row][col] == null) available.add(new Point(row, col));
-            }
-        }*/
-        List<Point> available = getAvailablePlaces(game.getPlacedObjects());
-        GameObject[][] placedCopy;
-        for (Point p : available) {
-            placedCopy = GameObject.clone(placed);
-            placedCopy[p.x][p.y] = selected;
-            if (checkBoard(placedCopy)) {
-                toPlace = p;
-                return true;
-            }
-            placedCopy = null;
-        }
-        return false;
-    }
-    
-    private List<Point> getAvailablePlaces(GameObject[][] board) {
-        List<Point> available = new ArrayList<>();
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board[row].length; col++) {
-                if (board[row][col] == null) available.add(new Point(row, col));
-            }
-        }
-        return available;
     }
     
     private void analyzeBoardAlphabeta(int depth) {

@@ -78,6 +78,50 @@ public class GameObject implements GameEntity {
         return square;
     }
     
+    public boolean isHole() {
+        return hole;
+    }
+    @Override
+    public void draw(Canvas canvas) {
+        if (position == null || boardSphereSize <= 0.f)
+            return;
+    
+        Paint objectColor = new Paint();
+        if (black) {
+            objectColor.setColor(MyColorPalette.PrimaryText);
+        } else {
+            objectColor.setColor(MyColorPalette.PrimaryDark);
+        }
+        objectColor.setAntiAlias(true);
+    
+        Paint boardColor = new Paint();
+        boardColor.setColor(MyColorPalette.Primary);
+        boardColor.setAntiAlias(true);
+    
+        float size = (float) sqrt(2.f) * boardSphereSize;
+    
+        if (! tall) {
+            size *= (2.f / 3.f);
+        }
+        //Log.d("big", "Size: " + size);
+    
+        if (square) {
+            RectF rect = new RectF(
+                    position.x - (size / 2) * 0.9f,
+                    position.y - (size / 2) * 0.9f,
+                    position.x + (size / 2) * 0.9f,
+                    position.y + (size / 2) * 0.9f);
+            canvas.drawRoundRect(rect, 10, 10, objectColor);
+            //canvas.drawRect(rect, objectColor);
+        } else {
+            canvas.drawCircle(position.x, position.y, size / 2, objectColor);
+        }
+    
+        if (hole) {
+            canvas.drawCircle(position.x, position.y, size / 4, boardColor);
+        }
+    }
+    
     public byte getCode() {
         return code;
     }
@@ -90,51 +134,6 @@ public class GameObject implements GameEntity {
         this.square = square;
         this.hole = hole;
     }*/
-    
-    public boolean isHole() {
-        return hole;
-    }
-    
-    @Override
-    public void draw(Canvas canvas) {
-        if (position == null || boardSphereSize <= 0.f)
-            return;
-        
-        Paint objectColor = new Paint();
-        if (black) {
-            objectColor.setColor(MyColorPalette.PrimaryText);
-        } else {
-            objectColor.setColor(MyColorPalette.PrimaryDark);
-        }
-        objectColor.setAntiAlias(true);
-        
-        Paint boardColor = new Paint();
-        boardColor.setColor(MyColorPalette.Primary);
-        boardColor.setAntiAlias(true);
-    
-        float size = (float) sqrt(2.f) * boardSphereSize;
-        
-        if (! tall) {
-            size *= (2.f / 3.f);
-        }
-        //Log.d("big", "Size: " + size);
-        
-        if (square) {
-            RectF rect = new RectF(
-                    position.x - (size / 2) * 0.9f,
-                    position.y - (size / 2) * 0.9f,
-                    position.x + (size / 2) * 0.9f,
-                    position.y + (size / 2) * 0.9f);
-            canvas.drawRoundRect(rect, 10, 10, objectColor);
-            //canvas.drawRect(rect, objectColor);
-        } else {
-            canvas.drawCircle(position.x, position.y, size / 2, objectColor);
-        }
-        
-        if (hole) {
-            canvas.drawCircle(position.x, position.y, size / 4, boardColor);
-        }
-    }
     
     @Override
     public void update() {

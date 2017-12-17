@@ -8,6 +8,6 @@ import android.graphics.Canvas;
 
 interface GameEntity {
     void draw(Canvas canvas);
-
+    
     void update();
 }

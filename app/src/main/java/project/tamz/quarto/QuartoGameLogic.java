@@ -7,6 +7,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by Richard Zvonek on 03/12/2017.
  */
@@ -22,6 +24,7 @@ class QuartoGameLogic {
     private GameArtificialIntelligence AI;
     private boolean gameEnd = false;
     private boolean playerWon = false;
+    private GameEndType gameEndType;
     
     public QuartoGameLogic() {
         
@@ -43,6 +46,10 @@ class QuartoGameLogic {
         selecting = true;
         
         AI = new GameArtificialIntelligence(this);
+    }
+    
+    public GameEndType getGameEndType() {
+        return gameEndType;
     }
     
     public int getPlacedCount() {
@@ -69,12 +76,22 @@ class QuartoGameLogic {
         }
     }
     
-    public boolean isPlayerWon() {
-        return playerWon;
-    }
-    
     public boolean isGameEnd() {
-        return checkGameBoard();
+        boolean check = checkGameBoard();
+        if (check) {
+            Log.d(TAG, "Winner AI: " + isAIWon());
+            if (isAIWon()) {
+                gameEndType = GameEndType.AI;
+            } else {
+                gameEndType = GameEndType.PLAYER;
+            }
+            return true;
+        } else if (getAvailableGameObjects().isEmpty()) {
+            Log.d(TAG, "DRAW");
+            gameEndType = GameEndType.DRAW;
+            return true;
+        }
+        return false;
     }
     
     private boolean checkGameBoard() {
@@ -92,10 +109,10 @@ class QuartoGameLogic {
             for (int col = 0; col < 4; col++) {
                 if (gameBoard[row][col] != null)
                     cols.add(gameBoard[col][row]);
-            
+    
                 if (gameBoard[row][col] != null)
                     rows.add(gameBoard[row][col]);
-            
+    
                 if (row + col == 3 && gameBoard[row][col] != null)
                     secondDiagonal.add(gameBoard[row][col]);
             }
@@ -132,6 +149,14 @@ class QuartoGameLogic {
             }
         }
         return foundCommonAttribute;
+    }
+    
+    public boolean isAIWon() {
+        return playerWon;
+    }
+    
+    public List<GameObject> getAvailableGameObjects() {
+        return availableGameObjects;
     }
     
     public static boolean hasCommon(@NonNull List<GameObject> args) {
@@ -251,10 +276,6 @@ class QuartoGameLogic {
     
     public boolean isSelecting() {
         return selecting;
-    }
-    
-    public List<GameObject> getAvailableGameObjects() {
-        return availableGameObjects;
     }
     
     public boolean place(Point coords) {

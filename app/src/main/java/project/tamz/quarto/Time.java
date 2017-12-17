@@ -9,7 +9,7 @@ public class Time {
     private long secondsInMilli = 1000;
     private long minutesInMilli = secondsInMilli * 60;
     private long hoursInMilli = minutesInMilli * 60;
-
+    
     Time() {
         this(0);
     }
@@ -17,15 +17,15 @@ public class Time {
     private Time(long millis) {
         set(millis);
     }
-
+    
     void set(long millis) {
-
+        
         h = millis / hoursInMilli;
         millis %= hoursInMilli;
-
+        
         m = millis / minutesInMilli;
         millis %= minutesInMilli;
-
+        
         s = millis / secondsInMilli;
     }
     
@@ -40,10 +40,10 @@ public class Time {
     public long getS() {
         return s;
     }
-
+    
     @Override
     public String toString() {
-
+        
         if (h == 0) {
             if (m == 0) {
                 return s + "s";
