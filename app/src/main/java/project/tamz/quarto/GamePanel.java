@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -208,6 +211,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             draw(canvas);
             gameActivity.endOfGame(canvas);
             drawGameEndPanel(canvas);
+            Vibrator vibrator = (Vibrator) gameActivity.getSystemService(Context.VIBRATOR_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(500);
+            }
             thread.setRunning(false);
         }
     }

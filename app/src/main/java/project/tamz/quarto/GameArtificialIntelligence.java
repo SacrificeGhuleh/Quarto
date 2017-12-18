@@ -33,7 +33,7 @@ public class GameArtificialIntelligence {
         getToPlace();
         getToSelect();
     
-        //analyzeBoardAlphabeta(5);
+        //analyzeBoardAlphaBeta(5);
         
         /*
         getToPlaceRandom();
@@ -103,36 +103,25 @@ public class GameArtificialIntelligence {
     
     private boolean getToPlaceRandom() {
         if (game == null) return false;
-        
-        /*List<Point> available = new ArrayList<>();
-        
-        GameObject placed[][] = game.getPlacedObjects();
-        
-        for (int row = 0; row < placed.length; row++) {
-            for (int col = 0; col < placed[row].length; col++) {
-                if (placed[row][col] == null) available.add(new Point(row, col));
-            }
-        }*/
-        
-        List<Point> available = getAvailablePlaces(game.getPlacedObjects());
+        List<Point> availablePlaces = getAvailablePlaces(game.getPlacedObjects());
         
         game.printBoard();
         Log.d("AI", "getToPlaceRandom: ");
-        Log.d("AI", "AI: available to place: " + available.toString());
+        Log.d("AI", "AI: available to place: " + availablePlaces.toString());
         /*
         * Random choosing
         * */
-        int availableCount = available.size();
+        int availableCount = availablePlaces.size();
         if (availableCount > 0) {
             if (availableCount == 1) {
-                toPlace = available.get(0);
+                toPlace = availablePlaces.get(0);
                 return true;
             }
             int min = 0;
             int max = availableCount;
             
             int rand = ThreadLocalRandom.current().nextInt(min, max);
-            toPlace = available.get(rand);
+            toPlace = availablePlaces.get(rand);
             Log.d("AI", "AI: to place: " + toPlace);
             return true;
         }
@@ -142,18 +131,11 @@ public class GameArtificialIntelligence {
     private boolean getToPlaceBeginner() {
         Log.d("AI", "Placing as beginner ");
         if (game == null) return false;
-        //List<Point> available = new ArrayList<>();
         GameObject selected = game.getSelectedObject();
         final GameObject placed[][] = game.getPlacedObjects();
-        /*
-        for (int row = 0; row < placed.length; row++) {
-            for (int col = 0; col < placed[row].length; col++) {
-                if (placed[row][col] == null) available.add(new Point(row, col));
-            }
-        }*/
-        List<Point> available = getAvailablePlaces(game.getPlacedObjects());
+        List<Point> availablePlaces = getAvailablePlaces(game.getPlacedObjects());
         GameObject[][] placedCopy;
-        for (Point p : available) {
+        for (Point p : availablePlaces) {
             placedCopy = GameObject.clone(placed);
             placedCopy[p.x][p.y] = selected;
             if (checkBoard(placedCopy)) {
@@ -167,21 +149,21 @@ public class GameArtificialIntelligence {
     
     private boolean getToSelectRandom() {
         if (game == null) return false;
-        
-        List<GameObject> available = game.getAvailableGameObjects();
-        
-        int availableCount = available.size();
+    
+        List<GameObject> availableGameObjects = game.getAvailableGameObjects();
+    
+        int availableCount = availableGameObjects.size();
         if (availableCount > 0) {
             if (availableCount == 1) {
-                toSelect = available.get(0);
+                toSelect = availableGameObjects.get(0);
                 return true;
             }
             int min = 0;
             int max = availableCount;
             
             int rand = ThreadLocalRandom.current().nextInt(min, max);
-            
-            toSelect = available.get(rand);
+    
+            toSelect = availableGameObjects.get(rand);
             return true;
         }
         return false;
@@ -190,23 +172,23 @@ public class GameArtificialIntelligence {
     private boolean getToSelectBeginner() {
         Log.d("AI", "Selecting as beginner");
         if (game == null) return false;
-        
-        List<GameObject> availableObjects = game.getAvailableGameObjects();
-        final GameObject[][] placed = game.getPlacedObjects();
+    
+        List<GameObject> availableGameObjects = game.getAvailableGameObjects();
+        final GameObject[][] placedObjects = game.getPlacedObjects();
         List<Point> availablePlaces = new ArrayList<>();
-        
-        for (int row = 0; row < placed.length; row++) {
-            for (int col = 0; col < placed[row].length; col++) {
-                if (placed[row][col] == null) availablePlaces.add(new Point(row, col));
+    
+        for (int row = 0; row < placedObjects.length; row++) {
+            for (int col = 0; col < placedObjects[row].length; col++) {
+                if (placedObjects[row][col] == null) availablePlaces.add(new Point(row, col));
             }
         }
-        boolean suitable = true;
+        boolean suitable;
         List<GameObject> goodForPlace = new ArrayList<>();
-        for (GameObject go : availableObjects) {
+        for (GameObject go : availableGameObjects) {
             suitable = true;
             innerLoop:
             for (Point p : availablePlaces) {
-                GameObject[][] placedCopy = GameObject.clone(placed);
+                GameObject[][] placedCopy = GameObject.clone(placedObjects);
                 placedCopy[p.x][p.y] = go;
                 
                 if (checkBoard(placedCopy)) {
@@ -301,7 +283,7 @@ public class GameArtificialIntelligence {
         return false;
     }
     
-    private void analyzeBoardAlphabeta(int depth) {
+    private void analyzeBoardAlphaBeta(int depth) {
         AlphaBetaResult result = alphabeta(game.getPlacedObjects(), game.getSelectedObject(), game.getAvailableGameObjects(), depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
         
         toSelect = result.piece;
@@ -414,6 +396,8 @@ public class GameArtificialIntelligence {
         
         GameObject[][] possibleBoard = null;
         int remaining = 0;
+        
+        
         
         /*
         static Board *possibleBoard = NULL;
