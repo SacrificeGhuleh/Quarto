@@ -21,6 +21,4 @@ This project is licensed under the WTFPL License - see the [LICENSE.md](LICENSE.
 
 ## Acknowledgments
 
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
+* **Tomas Dohnalek** - *Quarto minimax algorithm* [Dohnto](https://github.com/dohnto)
