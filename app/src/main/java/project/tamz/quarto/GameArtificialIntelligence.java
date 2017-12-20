@@ -396,8 +396,6 @@ public class GameArtificialIntelligence {
     }
     
     private int remainingPiecesScore(GameObject[][] board, GameObject piece, List<GameObject> availablePieces) {
-        //todo
-        
         if (! GameObject.hasSomeMatrix(board, remainingPossibleBoard)) {
             if (remainingPossibleBoard != null)
                 remainingPossibleBoard = null;
