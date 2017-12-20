@@ -46,6 +46,16 @@ public class GameObject implements GameEntity {
         return out;
     }
     
+    public static boolean hasSomeMatrix(GameObject[][] in1, GameObject[][] in2) {
+        if (in1 == null || in2 == null) return false;
+        for (int row = 0; row < in1.length; row++) {
+            for (int col = 0; col < in1[row].length; col++) {
+                if (in1[row][col] != in2[row][col]) return false;
+            }
+        }
+        return true;
+    }
+    
     public float getBoardSphereSize() {
         return boardSphereSize;
     }
@@ -57,10 +67,6 @@ public class GameObject implements GameEntity {
     public PointF getPosition() {
         return position;
     }
-
-    /*public GameObject() {
-        super();
-    }*/
     
     public void setPosition(PointF position) {
         this.position = position;
@@ -81,11 +87,12 @@ public class GameObject implements GameEntity {
     public boolean isHole() {
         return hole;
     }
+    
     @Override
     public void draw(Canvas canvas) {
         if (position == null || boardSphereSize <= 0.f)
             return;
-    
+        
         Paint objectColor = new Paint();
         if (black) {
             objectColor.setColor(MyColorPalette.PrimaryText);
@@ -93,18 +100,18 @@ public class GameObject implements GameEntity {
             objectColor.setColor(MyColorPalette.PrimaryDark);
         }
         objectColor.setAntiAlias(true);
-    
+        
         Paint boardColor = new Paint();
         boardColor.setColor(MyColorPalette.Primary);
         boardColor.setAntiAlias(true);
-    
+        
         float size = (float) sqrt(2.f) * boardSphereSize;
-    
+        
         if (! tall) {
             size *= (2.f / 3.f);
         }
         //Log.d("big", "Size: " + size);
-    
+        
         if (square) {
             RectF rect = new RectF(
                     position.x - (size / 2) * 0.9f,
@@ -116,10 +123,15 @@ public class GameObject implements GameEntity {
         } else {
             canvas.drawCircle(position.x, position.y, size / 2, objectColor);
         }
-    
+        
         if (hole) {
             canvas.drawCircle(position.x, position.y, size / 4, boardColor);
         }
+    }
+    
+    @Override
+    public void update() {
+    
     }
     
     public byte getCode() {
@@ -134,11 +146,6 @@ public class GameObject implements GameEntity {
         this.square = square;
         this.hole = hole;
     }*/
-    
-    @Override
-    public void update() {
-    
-    }
     
     @Override
     public int hashCode() {

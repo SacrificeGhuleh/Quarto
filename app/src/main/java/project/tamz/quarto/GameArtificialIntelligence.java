@@ -21,6 +21,8 @@ public class GameArtificialIntelligence {
     
     private GameObject toSelect;
     private Point toPlace;
+    private GameObject[][] remainingPossibleBoard = null;
+    private int remaining = 0;
     
     public GameArtificialIntelligence(@NonNull QuartoGameLogic qgm) {
         this.game = qgm;
@@ -30,15 +32,19 @@ public class GameArtificialIntelligence {
     
     public void analyzeBoard() {
         if (game == null) return;
-        getToPlace();
-        getToSelect();
     
-        //analyzeBoardAlphaBeta(5);
-        
-        /*
-        getToPlaceRandom();
-        getToSelectRandom();
-    */
+        if (game.getPlacedCount() < 4) {
+            getToPlaceRandom();
+            getToSelectRandom();
+            return;
+        }
+    
+        if (difficulty < 2) {
+            getToPlace();
+            getToSelect();
+        } else {
+            analyzeBoardAlphaBeta(difficulty - 1);
+        }
     }
     
     private boolean getToPlace() {
@@ -54,7 +60,6 @@ public class GameArtificialIntelligence {
                 result = getToPlaceBeginner();
                 if (! result)
                     result = getToPlaceRandom();
-                //Log.d("AI", "difficulty " + difficulty + " not implemented yet");
                 break;
             case 2:
                 Log.d("AI", "difficulty " + difficulty + " not implemented yet");
@@ -84,7 +89,6 @@ public class GameArtificialIntelligence {
                 result = getToSelectBeginner();
                 if (! result)
                     result = getToSelectRandom();
-                //Log.d("AI", "difficulty " + difficulty + " not implemented yet");
                 break;
             case 2:
                 Log.d("AI", "difficulty " + difficulty + " not implemented yet");
@@ -324,7 +328,7 @@ public class GameArtificialIntelligence {
         }
         
         if (depth == 0) { // leaf node, evaluate
-            bestMove.score = (maximize ? - 1 : 1) * evalGameState(board, piece);
+            bestMove.score = (maximize ? - 1 : 1) * evalGameState(board, piece, availablePieces);
             return bestMove;
         }
         
@@ -385,56 +389,37 @@ public class GameArtificialIntelligence {
         return 0;
     }
     
-    private int evalGameState(GameObject[][] board, GameObject piece) {
+    private int evalGameState(GameObject[][] board, GameObject piece, List<GameObject> availablePieces) {
         int score = 0;
-        score += remainingPiecesScore(board, piece);
+        score += remainingPiecesScore(board, piece, availablePieces);
         return score;
     }
     
-    private int remainingPiecesScore(GameObject[][] board, GameObject piece) {
+    private int remainingPiecesScore(GameObject[][] board, GameObject piece, List<GameObject> availablePieces) {
         //todo
         
-        GameObject[][] possibleBoard = null;
-        int remaining = 0;
-        
-        
-        
-        /*
-        static Board *possibleBoard = NULL;
-        static unsigned remaining = 0;
-        
-        if (! board -> hasSameMatrix(possibleBoard)) {
-            if (possibleBoard != NULL)
-                delete possibleBoard;
-            possibleBoard = new Board( * board);
+        if (! GameObject.hasSomeMatrix(board, remainingPossibleBoard)) {
+            if (remainingPossibleBoard != null)
+                remainingPossibleBoard = null;
             
-            possibleBoard -> addPieceToStock(piece);
-            Piece * chosenPiece;
+            remainingPossibleBoard = GameObject.clone(board);
             
-            remaining = possibleBoard -> getStock().size();
-            
-            foreach(chosenPiece, possibleBoard -> getStock()) {
-                QPair<unsigned, unsigned> possibleField;
-                
-                foreach(possibleField, possibleBoard -> getFreeFields()) {
-                    possibleBoard -> putPiece(possibleField, chosenPiece);
-                    
-                    bool victory = possibleBoard -> checkVictory();
-                    
-                    possibleBoard -> deletePiece(possibleField);
+            for (GameObject go : availablePieces) {
+                for (Point p : getAvailablePlaces(remainingPossibleBoard)) {
+                    if (remainingPossibleBoard[p.y][p.x] != null) continue;
+                    remainingPossibleBoard[p.y][p.x] = go;
+                    boolean victory = this.checkBoard(remainingPossibleBoard);
+                    remainingPossibleBoard[p.y][p.x] = null;
                     
                     if (victory) {
                         remaining--;
                         break;
                     }
+                    
                 }
             }
         }
-        
-        return (remaining % 2) ? (PLUS_INF - remaining) : (MINUS_INF + remaining);
-        */
-        
-        return 0;
+        return (remaining % 2 == 1) ? (Integer.MAX_VALUE - remaining) : (Integer.MIN_VALUE + remaining);
     }
     
     static class AlphaBetaResult {
