@@ -3,11 +3,12 @@
     package="project.tamz.quarto">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_quarto_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/ic_quarto_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
@@ -26,7 +27,8 @@
             android:screenOrientation="portrait">
             >
         </activity>
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".HelpActivity"></activity>
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package project.tamz.quarto;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,10 +9,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 public class SettingsActivity extends Activity {
-    private static int difficulty = 1;
+    private final static String PREF_DIFFICULTY = "Difficulty";
+    private static int difficulty;
     private TextView difficultyTextView;
     private SeekBar difficultySeekBar;
     private Button backButton;
+    private SharedPreferences preferences;
     
     public static int getDifficulty() {
         return difficulty;
@@ -21,6 +24,12 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+    
+        preferences = getPreferences(MODE_PRIVATE);
+        if (preferences.contains(PREF_DIFFICULTY)) {
+            difficulty = preferences.getInt(PREF_DIFFICULTY, 1);
+        } else
+            difficulty = 1;
         
         difficultyTextView = findViewById(R.id.difficultyDescTextView);
         difficultySeekBar = findViewById(R.id.difficultySeekBar);
@@ -39,6 +48,11 @@ public class SettingsActivity extends Activity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 difficulty = progress;
+    
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt(PREF_DIFFICULTY, progress);
+                editor.commit();
+                
                 setDescription(progress);
             }
             

@@ -12,6 +12,7 @@ public class MainActivity extends Activity {
     
     private Button startGameButton;
     private Button settingsButton;
+    private Button helpButton;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +24,7 @@ public class MainActivity extends Activity {
         
         startGameButton = findViewById(R.id.startGameButton);
         settingsButton = findViewById(R.id.settingsButton);
+        helpButton = findViewById(R.id.helpButton);
         
         startGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,6 +38,12 @@ public class MainActivity extends Activity {
                 settings();
             }
         });
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                help();
+            }
+        });
     }
     
     private void newGame() {
@@ -46,6 +54,12 @@ public class MainActivity extends Activity {
     
     private void settings() {
         Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+        
+        startActivity(intent);
+    }
+    
+    private void help() {
+        Intent intent = new Intent(getApplicationContext(), HelpActivity.class);
         
         startActivity(intent);
     }
