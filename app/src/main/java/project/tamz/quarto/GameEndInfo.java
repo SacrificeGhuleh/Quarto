@@ -24,10 +24,10 @@ public class GameEndInfo implements GameEntity {
             case AI:
                 info = "YOU LOST";
                 break;
-            case DRAW:
+            case PLAYER:
                 info = "YOU WON";
                 break;
-            case PLAYER:
+            case DRAW:
                 info = "DRAW";
                 break;
         }
